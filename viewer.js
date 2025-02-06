@@ -109,7 +109,7 @@ fetch(image + "/ImageProperties.xml")
       if (state && state.selected) {
         return {
           fill: '#ff0000',
-          fillOpacity: 0.3,
+          fillOpacity: 0,
           stroke: '#ff0000',
           strokeOpacity: 1
         };
@@ -118,7 +118,7 @@ fetch(image + "/ImageProperties.xml")
       // Default style for non-selected annotations
       return {
         fill: '#00ff00',
-        fillOpacity: 0.2,
+        fillOpacity: 0,
         stroke: '#00ff00',
         strokeOpacity: 1
       };
@@ -149,7 +149,7 @@ function init() {
     const blob = new Blob([bytes], {
       type: "application/json;charset=utf-8"
     });
-    saveAs(blob, "annotations.json");
+    window.open(URL.createObjectURL(blob), "_blank");
   });
   switchToolBut.addEventListener("click", function() {
     let next = switchToolBut.innerHTML
