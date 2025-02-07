@@ -8,32 +8,96 @@
     <meta charset="utf-8">
     <title>Image Viewer</title>
     <style>
-#viewer {
-  min-height: 300px;
-  height: 95vh;
-}
-#head {
-  float: right;
-  position: relative;
-}
-#annoDownload {
-  display: none;
-}
-#switchTool {
-  display: none;
-}
+      #viewer {
+        min-height: 300px;
+        height: 90vh;
+        width: 80vw;
+      }
+      #head {
+        float: right;
+        position: relative;
+      }
+      #annoDownload {
+        display: none;
+      }
+      #switchTool {
+        display: none;
+      }
+      #mainContainer {
+        display: flex;
+      }
+
+      #info {
+        width: 20vw;
+        display: inline;
+        padding: 1vw;
+      }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      #annoSelector {
+        width: 75%;
+      }
+      .annoChange {
+        width: 10%;
+      }
+
+      #annoTitle {
+        margin-top: 50px;
+        margin-bottom: 30px;
+        font-size: larger;
+        font-weight: bold;
+      }
+
+      .textInput {
+        width: 100%;
+      }
+      #editInfoBox {
+        min-height: 80px;
+        height: 50vh;
+      }
+      #annoEditNav {
+        margin-bottom: 30px;
+      }
     </style>
 </head>
 <body>
+  <div id="mainContainer">
+    <div id="viewer"></div>
 
-<div id="head">
-  <div id="toolbar"></div>
-  <button id="switchTool">Rechteck</button>
-  <button id="annoDownload">Download Annotations</button>
-</div>
-<div id="viewer"></div>
+    <div id="info">
+      <div id="annoNav" class="nav">
+        <select id="annoSelector">
+        </select>
+
+        <button id="annoBack" class="annoChange"> &lt; </button>
+        <button id="annoNext" class="annoChange"> &gt; </button>
+
+        <div>
+          <input type="checkbox" id="annoCheckZoom">
+          <label for="annoCheckZoom">Zu Annotation Zoomen</label><br>
+        </div>
+      </div>
 
 
-<script src="./viewer.js"></script>
+      <div id="annoEditNav">
+        <div id="annoTitle" class="annoInfoBox">
+          <input type="text" id="editTitle" class="textInput">
+        </div>
+        <div id="annoInfoText" class="annoInfoBox">
+          <textarea type="text" id="editInfoBox" class="textInput"></textarea>
+        </div>
+      </div>
+
+      <div id="annoManageNav" class="nav">
+        <button id="annoDelete">Löschen</button>
+        <button id="annoDownload">Download</button>
+      </div>
+    </div>
+  </div>
 </body>
+  <script src="./viewer.js"></script>
 </html>

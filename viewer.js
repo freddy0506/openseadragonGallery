@@ -126,22 +126,35 @@ fetch(image + "/ImageProperties.xml")
 
     // load Annotation if requested
     if(seeAnno) {
-      anno.loadAnnotations("./" + image + "/annotations.json");
+      anno.loadAnnotations("./" + image + "/annotations.json").then(init);
     }
-
 });
 
 // enable or disable edit mode
-document.addEventListener('DOMContentLoaded', init, false);
 function init() {
+  // get the Elements to edit
   let annoDown = document.getElementById("annoDownload");
-  let switchToolBut = document.getElementById("switchTool");
+  let annoSelect = document.getElementById("annoSelector");
+  let titleEdit = document.getElementById("editTitle");
+  let infoEdit = document.getElementById("editInfoBox");
 
-  if(edit == true) {
-    annoDown.style.display = "block";
-    switchToolBut.style.display = "block";
+  function anno_cmp(a,b) {
+    let nameA = a.bodies.find((x) => x.purpose == "identifying");
+    let nameB = b.bodies.find((x) => x.purpose == "identifying");
+
+    if (!nameA && !nameB) { return 0; }
+    if (!nameA) { return 1; }
+    if (!nameB) { return -1; }
+
+    return nameA.value.localeCompare(nameB.value);
   }
 
+  // set if editing display the menus for that
+  if(edit == true) {
+    annoDown.style.display = "block";
+  }
+
+  // When downloading the Annotations open them in new Tab
   annoDown.addEventListener("click", function() {
     let annotations = anno.getAnnotations();
     const str = JSON.stringify(annotations);
@@ -151,14 +164,144 @@ function init() {
     });
     window.open(URL.createObjectURL(blob), "_blank");
   });
-  switchToolBut.addEventListener("click", function() {
-    let next = switchToolBut.innerHTML
-    if(next == "Polygon") {
-      anno.setDrawingTool("polygon");
-      switchToolBut.innerHTML = "Rechteck"
-    } else {
-      anno.setDrawingTool("rectangle");
-      switchToolBut.innerHTML = "Polygon"
+
+  // create and listen for changes in the Annotationsselector
+  function update_selector() {
+    // get annotation List
+    let annotationList = anno.getAnnotations();
+    annotationList.sort(anno_cmp);
+
+    // fill selector with the ids and identifying names of the annotations
+    annoSelect.innerHTML = "";
+    annotationList.forEach((a) => {
+      let opt = document.createElement("option");
+      opt.value = a.id;
+      let name_body = a.bodies.find((x) => x.purpose == "identifying");
+      if(name_body) {
+        opt.innerHTML = name_body.value;
+      }
+      annoSelect.appendChild(opt);
+    });
+
+    // set Selector to currently selected Annotation
+    let curAnno = anno.getSelected()[0];
+    if(curAnno) {
+      annoSelect.value = curAnno.id;
     }
-  });
+  }
+  update_selector();
+
+  // to select the annotation
+  // and zoom to it if needed
+  function select_anno(id) {
+    // Zoom to index if checked
+    let shouldZoom = document.getElementById("annoCheckZoom").checked;
+    if(shouldZoom) {
+      anno.fitBoundsWithConstraints(id, { padding: 40 });
+    }
+    anno.setSelected(id);
+
+    update_selector();
+    update_info();
+  }
+  annoSelect.addEventListener("input", (e) => select_anno(e.target.value));
+
+  // update the info window
+  function update_info() {
+    let titleElem = document.getElementById("annoTitle");
+    let infoTextElem= document.getElementById("annoInfoText");
+
+    let curAnno = anno.getSelected()[0];
+
+    if(curAnno) {
+      let titleAnno = curAnno.bodies.find((x) => x.purpose == "identifying");
+      let infoAnno = curAnno.bodies.find((x) => x.purpose == "describing")
+
+      if(edit) {
+        titleEdit.value = titleAnno == undefined ? "" : titleAnno.value;
+        infoEdit.value = infoAnno == undefined ? "" : infoAnno.value;
+      } else {
+        titleElem.innerHTML = titleAnno == undefined ? "" : titleAnno.value;
+        infoTextElem.innerHTML = infoAnno == undefined ? "" : infoAnno.value;
+      }
+
+    } else {
+      if(!edit) {
+        titleElem.innerHTML = "";
+        infoTextElem.innerHTML = "";
+      } else {
+        titleEdit.value = "";
+        infoEdit.value = "";
+      }
+      return;
+    }
+  
+  }
+  anno.on("selectionChanged", () => { update_selector(); update_info(); });
+  update_info();
+
+  // configure the forward move
+  function nextAnno() {
+    // get List of annotations
+    let annotationList = anno.getAnnotations();
+    annotationList.sort(anno_cmp);
+
+    // find nextIndex
+    let i = annotationList.findIndex((a) => a.id == annoSelect.value);
+    let nextId;
+    if(i+1 >= annotationList.length) {
+      nextId = annotationList[0].id;
+    } else {
+      nextId = annotationList[i+1].id;
+    }
+    select_anno(nextId);
+
+  }
+  document.getElementById("annoNext").addEventListener("click", nextAnno);
+  
+
+  function prevAnno() {
+    // get List of annotations
+    let annotationList = anno.getAnnotations();
+    annotationList.sort(anno_cmp);
+
+    // find nextIndex
+    let i = annotationList.findIndex((a) => a.id == annoSelect.value);
+    let nextId;
+    if(i-1 < 0) {
+      nextId = annotationList[annotationList.length-1].id;
+    } else {
+      nextId = annotationList[i-1].id;
+    }
+    select_anno(nextId);
+  }
+  document.getElementById("annoBack").addEventListener("click", prevAnno);
+
+  function deleteAnno() {
+    anno.removeAnnotation(anno.getSelected()[0]);
+  }
+  document.getElementById("annoDelete").addEventListener("click", deleteAnno);
+
+  function update_anno_info() {
+    if(!edit) { return; }
+
+    let curAnno = anno.getSelected()[0];
+    if(!curAnno) { return; }
+    let titleAnno = {
+      "annotation": curAnno.id,
+      "purpose": "identifying",
+      "value": titleEdit.value
+    }
+    let infoAnno = {
+      "annotation": curAnno.id,
+      "purpose": "describing",
+      "value": infoEdit.value
+    }
+    
+    curAnno.bodies = [ titleAnno, infoAnno ];
+    anno.updateAnnotation(curAnno);
+    update_selector();
+  }
+  infoEdit.addEventListener("input", update_anno_info);
+  titleEdit.addEventListener("input", update_anno_info);
 }
