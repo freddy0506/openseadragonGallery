@@ -1,4 +1,5 @@
 *
 !.gitignore
 !viewer.*
-!index.html
+!index.*
+!annoList.json
