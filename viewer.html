@@ -11,14 +11,11 @@
       #viewer {
         min-height: 300px;
         height: 90vh;
-        width: 80vw;
+        width: 100%;
       }
       #head {
         float: right;
         position: relative;
-      }
-      #annoDownload {
-        display: none;
       }
       #switchTool {
         display: none;
@@ -62,6 +59,10 @@
       #annoEditNav {
         margin-bottom: 30px;
       }
+      .annoManageBut {
+        margin-left: auto;
+        margin-right: 0;
+      }
     </style>
 </head>
 <body>
@@ -89,12 +90,12 @@
         </div>
         <div id="annoInfoText" class="annoInfoBox">
           <textarea type="text" id="editInfoBox" class="textInput"></textarea>
+          <button id="annoDelete" class="annoManageBut">Löschen</button>
         </div>
       </div>
 
       <div id="annoManageNav" class="nav">
-        <button id="annoDelete">Löschen</button>
-        <button id="annoDownload">Download</button>
+        <button id="annoDownload" class="annoManageBut">Download</button>
       </div>
     </div>
   </div>

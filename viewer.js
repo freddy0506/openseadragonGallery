@@ -6,7 +6,13 @@ const urlParams = new URLSearchParams(queryString);
 const image = urlParams.get('image')
 
 const edit = (urlParams.get('edit') == "true") || false
+if(!edit) {
+  document.getElementById("annoManageNav").style.display = "none";
+}
 const seeAnno = (urlParams.get('anno') == "true") || false
+if(!seeAnno) {
+  document.getElementById("info").style.display = "none";
+}
 
 // define Annotorious for later use
 let anno;
@@ -149,11 +155,6 @@ function init() {
     return nameA.value.localeCompare(nameB.value);
   }
 
-  // set if editing display the menus for that
-  if(edit == true) {
-    annoDown.style.display = "block";
-  }
-
   // When downloading the Annotations open them in new Tab
   annoDown.addEventListener("click", function() {
     let annotations = anno.getAnnotations();
@@ -214,6 +215,8 @@ function init() {
     let curAnno = anno.getSelected()[0];
 
     if(curAnno) {
+      document.getElementById("annoEditNav").style.visibility = "unset";
+
       let titleAnno = curAnno.bodies.find((x) => x.purpose == "identifying");
       let infoAnno = curAnno.bodies.find((x) => x.purpose == "describing")
 
@@ -226,13 +229,7 @@ function init() {
       }
 
     } else {
-      if(!edit) {
-        titleElem.innerHTML = "";
-        infoTextElem.innerHTML = "";
-      } else {
-        titleEdit.value = "";
-        infoEdit.value = "";
-      }
+      document.getElementById("annoEditNav").style.visibility = "hidden";
       return;
     }
   
