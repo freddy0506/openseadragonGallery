@@ -27,6 +27,7 @@
         width: 20vw;
         display: inline;
         padding: 1vw;
+        display: none;
       }
       .nav {
         display: flex;
@@ -57,10 +58,15 @@
       }
       #annoEditNav {
         margin-bottom: 30px;
+        display: none;
       }
       .annoManageBut {
         margin-left: auto;
         margin-right: 0;
+        display: none;
+      }
+      #annoInfo {
+        display: none;
       }
     </style>
 </head>
@@ -77,17 +83,22 @@
         <button id="annoNext" class="annoChange"> &gt; </button>
 
         <div>
-          <input type="checkbox" id="annoCheckZoom">
+         <input type="checkbox" id="annoCheckZoom">
           <label for="annoCheckZoom">Zu Annotation Zoomen</label><br>
         </div>
       </div>
 
 
+      <div id="annoInfo">
+        <div id="annoTitle" class="annoInfoBox"> </div>
+        <div id="annoInfoText" class="annoInfoBox"> </div>
+      </div>
+
       <div id="annoEditNav">
-        <div id="annoTitle" class="annoInfoBox">
+        <div id="annoTitleEdit" class="annoInfoBox">
           <input type="text" id="editTitle" class="textInput">
         </div>
-        <div id="annoInfoText" class="annoInfoBox">
+        <div id="annoInfoTextEdit" class="annoInfoBox">
           <textarea type="text" id="editInfoBox" class="textInput"></textarea>
           <button id="annoDelete" class="annoManageBut">Löschen</button>
         </div>

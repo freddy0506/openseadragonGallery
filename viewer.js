@@ -9,13 +9,17 @@ const image = urlParams.get('image')
 const edit = (urlParams.get('edit') == "true") || false
 const seeAnno = (urlParams.get('anno') == "true") || edit 
 
-if(!seeAnno) {
-  document.getElementById("info").style.display = "none";
+if(seeAnno) {
+  document.getElementById("info").style.display = "unset";
 }
 
-if(!edit) {
-  document.getElementById("annoManageNav").style.display = "none";
+if(edit) {
+  document.getElementById("annoDownload").style.display = "unset";
+  document.getElementById("annoEditNav").style.display = "unset";
+} else {
+  document.getElementById("annoInfo").style.display = "unset";
 }
+
 // define Annotorious for later use
 let anno;
 let viewer;
@@ -152,6 +156,7 @@ function init() {
   let titleEdit = document.getElementById("editTitle");
   let infoEdit = document.getElementById("editInfoBox");
 
+  // function to compare annotations by there name
   function anno_cmp(a,b) {
     let nameA = a.bodies.find((x) => x.purpose == "identifying");
     let nameB = b.bodies.find((x) => x.purpose == "identifying");
