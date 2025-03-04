@@ -5,15 +5,17 @@ const urlParams = new URLSearchParams(queryString);
 // get the name of the image to view 
 const image = urlParams.get('image')
 
+
 const edit = (urlParams.get('edit') == "true") || false
-if(!edit) {
-  document.getElementById("annoManageNav").style.display = "none";
-}
-const seeAnno = (urlParams.get('anno') == "true") || false
+const seeAnno = (urlParams.get('anno') == "true") || edit 
+
 if(!seeAnno) {
   document.getElementById("info").style.display = "none";
 }
 
+if(!edit) {
+  document.getElementById("annoManageNav").style.display = "none";
+}
 // define Annotorious for later use
 let anno;
 let viewer;
@@ -132,9 +134,15 @@ fetch(image + "/ImageProperties.xml")
 
     // load Annotation if requested
     if(seeAnno) {
-      anno.loadAnnotations("./" + image + "/annotations.json").then(init);
+      loadAnnos();
     }
 });
+async function loadAnnos() {
+  try { await anno.loadAnnotations("./" + image + "/annotations.json"); } 
+  finally {
+    init();
+  }
+}
 
 // enable or disable edit mode
 function init() {
@@ -174,6 +182,9 @@ function init() {
 
     // fill selector with the ids and identifying names of the annotations
     annoSelect.innerHTML = "";
+    let opt = document.createElement("option");
+    opt.value = "nothing";
+    annoSelect.appendChild(opt);
     annotationList.forEach((a) => {
       let opt = document.createElement("option");
       opt.value = a.id;
@@ -252,7 +263,6 @@ function init() {
       nextId = annotationList[i+1].id;
     }
     select_anno(nextId);
-
   }
   document.getElementById("annoNext").addEventListener("click", nextAnno);
   
