@@ -14,7 +14,7 @@ if(seeAnno) {
 }
 
 if(edit) {
-  document.getElementById("annoDownload").style.display = "unset";
+  document.getElementById("annoSave").style.display = "unset";
   document.getElementById("annoEditNav").style.display = "unset";
 } else {
   document.getElementById("annoInfo").style.display = "unset";
@@ -151,7 +151,7 @@ async function loadAnnos() {
 // enable or disable edit mode
 function init() {
   // get the Elements to edit
-  let annoDown = document.getElementById("annoDownload");
+  let annoSave = document.getElementById("annoSave");
   let annoSelect = document.getElementById("annoSelector");
   let titleEdit = document.getElementById("editTitle");
   let infoEdit = document.getElementById("editInfoBox");
@@ -169,14 +169,21 @@ function init() {
   }
 
   // When downloading the Annotations open them in new Tab
-  annoDown.addEventListener("click", function() {
+  annoSave.addEventListener("click", function() {
     let annotations = anno.getAnnotations();
-    const str = JSON.stringify(annotations);
-    const bytes = new TextEncoder().encode(str);
-    const blob = new Blob([bytes], {
-      type: "application/json;charset=utf-8"
+    //let req = new XMLHttpRequest();
+    let reqBody = JSON.stringify({
+      annotations: annotations,
+      picID: image
     });
-    window.open(URL.createObjectURL(blob), "_blank");
+
+    fetch("./uploadAnno.php", {
+      method: "POST",
+      body: reqBody,
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    });
   });
 
   // create and listen for changes in the Annotationsselector
