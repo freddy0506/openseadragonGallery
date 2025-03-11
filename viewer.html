@@ -1,74 +1,13 @@
 <!doctype html>
 <html>
 <head>
-      <script src="https://cdn.jsdelivr.net/npm/openseadragon@latest/build/openseadragon/openseadragon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@latest/dist/annotorious-openseadragon.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@latest/dist/annotorious-openseadragon.css">
-    <meta charset="utf-8">
-    <title>Image Viewer</title>
-    <style>
-      #viewer {
-        min-height: 300px;
-        height: 90vh;
-        width: 100%;
-      }
-      #head {
-        float: right;
-        position: relative;
-      }
-      #switchTool {
-        display: none;
-      }
-      #mainContainer {
-        display: flex;
-      }
-
-      #info {
-        width: 20vw;
-        display: inline;
-        padding: 1vw;
-        display: none;
-      }
-      .nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        margin-bottom: 20px;
-      }
-      #annoSelector {
-        width: 75%;
-      }
-      .annoChange {
-        width: 10%;
-      }
-
-      #annoTitle {
-        margin-top: 50px;
-        margin-bottom: 30px;
-        font-size: larger;
-        font-weight: bold;
-      }
-
-      .textInput {
-        width: 100%;
-      }
-      #editInfoBox {
-        min-height: 80px;
-        height: 50vh;
-      }
-      #annoEditNav {
-        margin-bottom: 30px;
-        display: none;
-      }
-      .annoManageBut {
-        margin-left: auto;
-        margin-right: 0;
-        display: none;
-      }
-      #annoInfo {
-        display: none;
-      }
-    </style>
+  <script src="https://cdn.jsdelivr.net/npm/openseadragon@latest/build/openseadragon/openseadragon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@latest/dist/annotorious-openseadragon.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@vectopus/atlas-icons/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@latest/dist/annotorious-openseadragon.css">
+  <meta charset="utf-8">
+  <title>Image Viewer</title>
+  <link rel="stylesheet" href="./viewer.css">
 </head>
 <body>
   <div id="mainContainer">
@@ -79,13 +18,19 @@
         <select id="annoSelector">
         </select>
 
-        <button id="annoBack" class="annoChange"> &lt; </button>
-        <button id="annoNext" class="annoChange"> &gt; </button>
+        <button id="annoBack" class="annoChange"> <i class="at-arrow-left"></i> </button>
+        <button id="annoNext" class="annoChange"> <i class="at-arrow-right"></i> </button>
 
         <div>
          <input type="checkbox" id="annoCheckZoom" checked>
           <label for="annoCheckZoom">Zu Annotation Zoomen</label><br>
         </div>
+      </div>
+
+      <div id="editModeSelector" class="nav">
+        <button id="MoveMode" class="curModeButton"> <i class="at-arrows-move-navigate"></i> Move</button>
+        <button id="RectMode"> <img src="/icons/rect.svg" class="icon"> Rectangle</button>
+        <button id="PolyMode"> <img src="/icons/poly.svg" class="icon"> Polygon</button>
       </div>
 
 
@@ -100,7 +45,7 @@
         </div>
         <div id="annoInfoTextEdit" class="annoInfoBox">
           <textarea type="text" id="editInfoBox" class="textInput"></textarea>
-          <button id="annoDelete" class="annoManageBut">Löschen</button>
+          <button id="annoDelete">Löschen</button>
         </div>
       </div>
 

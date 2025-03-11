@@ -1,0 +1,92 @@
+#viewer {
+  min-height: 300px;
+  height: 90vh;
+  width: 100%;
+}
+
+button {
+  background-color: #664df2;
+  border: none;
+  color: white;
+  padding: 3px 7px;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #5641cc;
+}
+
+.icon {
+  height: 14px; 
+}
+
+#head {
+  float: right;
+  position: relative;
+}
+#switchTool {
+  display: none;
+}
+#mainContainer {
+  display: flex;
+}
+
+#info {
+  width: 20vw;
+  display: inline;
+  padding: 1vw;
+  display: none;
+}
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+#annoSelector {
+  width: 75%;
+}
+.annoChange {
+  width: 10%;
+}
+
+#annoTitle {
+  margin-top: 50px;
+  margin-bottom: 30px;
+  font-size: larger;
+  font-weight: bold;
+}
+
+.textInput {
+  width: 100%;
+}
+#editInfoBox {
+  min-height: 80px;
+  height: 50vh;
+}
+#annoEditNav {
+  margin-bottom: 30px;
+  display: none;
+}
+#annoCheckZoom {
+  accent-color: #664df2;
+}
+.annoManageBut {
+  margin-left: auto;
+  margin-right: 0;
+  display: none;
+}
+#annoInfo {
+  display: none;
+}
+
+#editModeSelector{
+  display: none;
+}
+.curModeButton {
+  background-color: #403099;
+}

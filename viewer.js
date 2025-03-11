@@ -16,6 +16,7 @@ if(seeAnno) {
 if(edit) {
   document.getElementById("annoSave").style.display = "unset";
   document.getElementById("annoEditNav").style.display = "unset";
+  document.getElementById("editModeSelector").style.display = "unset";
 } else {
   document.getElementById("annoInfo").style.display = "unset";
 }
@@ -108,21 +109,13 @@ fetch(image + "/ImageProperties.xml")
     anno = AnnotoriousOSD.createOSDAnnotator(viewer, {
     });
 
-    // configure editing
-    anno.setDrawingEnabled(edit);
-    if(edit) {
-      anno.setUserSelectAction("EDIT");
-    } else {
-      anno.setUserSelectAction("SELECT");
-    }
-
     // configure style of annotation
     anno.setStyle((annotation, state) => {
       if (state && state.selected) {
         return {
           fill: '#ff0000',
           fillOpacity: 0,
-          stroke: '#ff0000',
+          stroke: '#00ff00',
           strokeOpacity: 1
         };
       }
@@ -131,7 +124,7 @@ fetch(image + "/ImageProperties.xml")
       return {
         fill: '#00ff00',
         fillOpacity: 0,
-        stroke: '#00ff00',
+        stroke: '#664df2',
         strokeOpacity: 1
       };
     });
@@ -323,4 +316,39 @@ function init() {
   }
   infoEdit.addEventListener("input", update_anno_info);
   titleEdit.addEventListener("input", update_anno_info);
+
+  let polyButton = document.getElementById("PolyMode");
+  let moveButton = document.getElementById("MoveMode");
+  let rectButton = document.getElementById("RectMode");
+  function changeMode(mode) {
+    switch (mode) {
+      case "POLY":
+        polyButton.className = "curModeButton";
+        moveButton.className = "";
+        rectButton.className = "";
+        anno.setDrawingTool("polygon");
+        anno.setDrawingEnabled(true);
+        anno.setUserSelectAction("EDIT");
+        break;
+      case "RECT":
+        polyButton.className = "";
+        moveButton.className = "";
+        rectButton.className = "curModeButton";
+        anno.setDrawingTool("rectangle");
+        anno.setDrawingEnabled(true);
+        anno.setUserSelectAction("EDIT");
+        break;
+      case "MOVE":
+        polyButton.className = "";
+        moveButton.className = "curModeButton";
+        rectButton.className = "";
+        anno.setDrawingEnabled(false);
+        if(!edit) { anno.setUserSelectAction("SELECT"); }
+        break;
+    }
+  }
+  changeMode("MOVE");
+  polyButton.addEventListener("click", () => {changeMode("POLY");});
+  moveButton.addEventListener("click", () => {changeMode("MOVE");});
+  rectButton.addEventListener("click", () => {changeMode("RECT");});
 }
