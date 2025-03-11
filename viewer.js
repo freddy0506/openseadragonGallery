@@ -107,6 +107,7 @@ fetch(image + "/ImageProperties.xml")
 
     // configure the annoViewer
     anno = AnnotoriousOSD.createOSDAnnotator(viewer, {
+      autoSave: true
     });
 
     // configure style of annotation
@@ -161,6 +162,22 @@ function init() {
     return nameA.value.localeCompare(nameB.value);
   }
 
+
+  function annoIsSaved(saved) {
+    let saveDisp = document.getElementById("annoSaveChanged");
+    if (saved) {
+      saveDisp.innerHTML = ""
+      saveDisp.style.color = "unset";
+    } else {
+      saveDisp.innerHTML = "Nicht gespeichert"
+      saveDisp.style.color = "red";
+    }
+  }
+  anno.on("updateAnnotation", () => { annoIsSaved(false); });
+  anno.on("createAnnotation", () => { annoIsSaved(false); });
+  anno.on("deleteAnnotation", () => { annoIsSaved(false); });
+  
+
   // When downloading the Annotations open them in new Tab
   annoSave.addEventListener("click", function() {
     let annotations = anno.getAnnotations();
@@ -177,6 +194,7 @@ function init() {
         "Content-type": "application/json; charset=UTF-8"
       }
     });
+    annoIsSaved(true);
   });
 
   // create and listen for changes in the Annotationsselector
