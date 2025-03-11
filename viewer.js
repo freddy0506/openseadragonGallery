@@ -166,7 +166,7 @@ function init() {
   function annoIsSaved(saved) {
     let saveDisp = document.getElementById("annoSaveChanged");
     if (saved) {
-      saveDisp.innerHTML = ""
+      saveDisp.innerHTML = "Gespeichert!"
       saveDisp.style.color = "unset";
     } else {
       saveDisp.innerHTML = "Nicht gespeichert"
@@ -288,7 +288,6 @@ function init() {
     select_anno(nextId);
   }
   document.getElementById("annoNext").addEventListener("click", nextAnno);
-  
 
   function prevAnno() {
     // get List of annotations
@@ -306,6 +305,13 @@ function init() {
     select_anno(nextId);
   }
   document.getElementById("annoBack").addEventListener("click", prevAnno);
+  document.addEventListener("keydown", (k) => {
+    if(k.key == "ArrowLeft") {
+      prevAnno();
+    } else if (k.key == "ArrowRight") {
+      nextAnno();
+    }
+  });
 
   function deleteAnno() {
     anno.removeAnnotation(anno.getSelected()[0]);
