@@ -49,6 +49,9 @@ button:hover {
 }
 #annoSelector {
   width: 75%;
+  border: none;
+  background: #b4a9f2;
+  border-radius: 4px;
 }
 .annoChange {
   width: 10%;
