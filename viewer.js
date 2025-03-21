@@ -306,6 +306,10 @@ function init() {
   }
   document.getElementById("annoBack").addEventListener("click", prevAnno);
   document.addEventListener("keydown", (k) => {
+    if(k.key == "Delete" && edit) {
+      deleteAnno()
+    }
+
     if(k.key == "ArrowLeft") {
       prevAnno();
     } else if (k.key == "ArrowRight") {
