@@ -207,6 +207,7 @@ function init() {
     annoSelect.innerHTML = "";
     let opt = document.createElement("option");
     opt.value = "nothing";
+    opt.hidden = true;
     annoSelect.appendChild(opt);
     annotationList.forEach((a) => {
       let opt = document.createElement("option");
