@@ -44,6 +44,18 @@
       display: flex;
       outline: 2px gray solid;
     }
+    #filterDiv {
+      width: 90vw;
+      max-width: 1000px;
+      margin-right: auto;
+      margin-left: auto;
+      display: flex;
+      margin-top: 10px;
+      font-size: 1.5em;
+    }
+    .filterCheckbox {
+      margin-left: 10px;
+    }
     #searchInput {
       font-size: min(7vw, 35px);
       width: 100%;
@@ -81,6 +93,14 @@
   <div id="searchInputDiv">
     <input type="text" id="searchInput">
     <img src="./searchIcon.svg" id="searchIcon">
+  </div>
+  <div id="filterDiv">
+       <input type="checkbox" id="checkID" class="filterCheckbox" checked>
+        <label for="checkID">ID</label><br>
+       <input type="checkbox" id="checkName" class="filterCheckbox" checked>
+        <label for="checkName">Name</label><br>
+       <input type="checkbox" id="checkKeywords" class="filterCheckbox">
+        <label for="checkKeywords">Keywords</label><br>
   </div>
 
   <div class="grid" id="searchResults">
