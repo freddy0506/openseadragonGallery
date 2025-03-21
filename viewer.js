@@ -107,7 +107,7 @@ fetch(image + "/ImageProperties.xml")
 
     // configure the annoViewer
     anno = AnnotoriousOSD.createOSDAnnotator(viewer, {
-      autoSave: true
+      autoSave: true,
     });
 
     // configure style of annotation
