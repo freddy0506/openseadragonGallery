@@ -85,6 +85,11 @@ button:hover {
 }
 #annoInfo {
   display: none;
+  word-break: break-word;
+}
+.annoInfoBox {
+  margin-top: 20px;
+  white-space: pre-wrap;
 }
 
 #editModeSelector{

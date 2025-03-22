@@ -174,8 +174,13 @@ function init() {
     }
   }
   anno.on("updateAnnotation", () => { annoIsSaved(false); });
-  anno.on("createAnnotation", () => { annoIsSaved(false); });
   anno.on("deleteAnnotation", () => { annoIsSaved(false); });
+  anno.on("createAnnotation", () => { 
+    let curAnnoID = anno.getSelected()[0].id;
+    changeMode("MOVE");
+    anno.setSelected(curAnnoID);
+    annoIsSaved(false); 
+  });
   
 
   // When downloading the Annotations open them in new Tab
