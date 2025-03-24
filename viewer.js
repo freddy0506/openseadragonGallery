@@ -44,6 +44,7 @@ fetch(image + "/ImageProperties.xml")
     viewer = OpenSeadragon({
       id:              "viewer",
       prefixUrl:       "https://openseadragon.github.io/openseadragon/images/",
+      showNavigator:  true,
       tileSources: {
         height: parseInt(imageXML.getNamedItem("height").value),
         width:  parseInt(imageXML.getNamedItem("width").value),
