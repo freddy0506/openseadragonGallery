@@ -7,7 +7,8 @@ if(!json_validate($dataString)) {
 }
 $data = json_decode($dataString, true);
 $picID = $data["picID"];
-$picPath = "./".$picID."/";
+$allPicDir = getenv("PICDIR");
+$picPath = $allPicDir."/".$picID."/";
 $annos = $data["annotations"];
 
 // picID is not real picID
@@ -26,4 +27,5 @@ if(!file_exists($picPath)) {
 
 // write the annotations to the file 
 file_put_contents($picPath."annotations.json", json_encode($annos));
+echo "Done";
 ?>
