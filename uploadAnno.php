@@ -12,8 +12,8 @@ $picPath = $allPicDir."/".$picID."/";
 $annos = $data["annotations"];
 
 // picID is not real picID
-// I hope this stops the posibility for changing the directory backwards
-if(!preg_match("/^[0-9]{1,3}[a,b]?_[1,2,4]0x[a,b]?$/", $picID)) {
+// I hope this stops the posibility of directory path traversal
+if(!preg_match("/^[0-9]{1,3}[ab]?_[124]0x[ab]?$/", $picID)) {
   echo "Not a real ID";
   return;
 }
