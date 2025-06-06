@@ -199,8 +199,15 @@ function init() {
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
+    }).then((e) => {
+        e.text().then((t) => {
+            if( t == "Done") {
+                annoIsSaved(true);
+            } else {
+                alert("Das Speichern hat nicht funktioniert");
+            }
+        });
     });
-    annoIsSaved(true);
   });
 
   // create and listen for changes in the Annotationsselector
