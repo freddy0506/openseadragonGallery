@@ -62,17 +62,24 @@ function update_search_list(searchList) {
     let elemInfo = document.createElement("table");
     elemInfo.className = "itemInfo";
 
+
+    // Add the information to the table
     let nameRow = document.createElement("tr");
-    let keywordRow = document.createElement("tr");
-    let idRow = document.createElement("tr");
-
     nameRow.innerHTML = item.name;
-    keywordRow.innerHTML = item.keywords.toString();
-    idRow.innerHTML = item.id;
-
+    nameRow.className = "itemTitle"
     elemInfo.appendChild(nameRow);
+
+    let keywordRow = document.createElement("tr");
+    keywordRow.innerHTML = item.keywords.toString();
+    keywordRow.className = "itemKeywords"
     elemInfo.appendChild(keywordRow);
+
+    let idRow = document.createElement("tr");
+    idRow.innerHTML = item.id;
+    idRow.className = "itemId"
     elemInfo.appendChild(idRow);
+
+    // Add the table to the item
     elem.appendChild(elemInfo);
 
     // when clicked go to pic

@@ -126,7 +126,7 @@ fetch(image + "/ImageProperties.xml")
       return {
         fill: '#00ff00',
         fillOpacity: 0,
-        stroke: '#664df2',
+        stroke: 'rgba(0,75,90,0.3)',
         strokeOpacity: 1
       };
     });
@@ -141,6 +141,24 @@ async function loadAnnos() {
   finally {
     init();
   }
+}
+
+// switch back to homepage while keeping the parameters
+function goHome() {
+    let params = []
+    if (urlParams.get("anno") == "true") {
+        params.push("anno=true")
+    }
+
+    if (urlParams.get("edit") == "true") {
+        params.push("edit=true")
+    }
+
+    if (params.length > 0) {
+        window.location.href = "/?" + params.join("&");
+    } else {
+        window.location.href = "/";
+    }
 }
 
 // enable or disable edit mode
