@@ -258,15 +258,18 @@ function init() {
   }
   update_selector();
 
+  function zoom2Selected() {
+    if(anno.getSelected().length == 0) { return; }
+    let shouldZoom = document.getElementById("annoCheckZoom").checked;
+    if(shouldZoom) {
+      anno.fitBoundsWithConstraints(anno.getSelected()[0].id, { padding: 40 });
+    }
+  }
   // to select the annotation
   // and zoom to it if needed
   function select_anno(id) {
-    // Zoom to index if checked
-    let shouldZoom = document.getElementById("annoCheckZoom").checked;
-    if(shouldZoom) {
-      anno.fitBoundsWithConstraints(id, { padding: 40 });
-    }
     anno.setSelected(id);
+    zoom2Selected();
 
     update_selector();
     update_info();
@@ -282,6 +285,7 @@ function init() {
 
     if(curAnno) {
       document.getElementById("annoEditNav").style.visibility = "unset";
+      document.getElementById("annoInfo").style.visibility = "unset";
 
       let titleAnno = curAnno.bodies.find((x) => x.purpose == "identifying");
       let infoAnno = curAnno.bodies.find((x) => x.purpose == "describing")
@@ -296,11 +300,12 @@ function init() {
 
     } else {
       document.getElementById("annoEditNav").style.visibility = "hidden";
+      document.getElementById("annoInfo").style.visibility = "hidden";
       return;
     }
   
   }
-  anno.on("selectionChanged", () => { update_selector(); update_info(); });
+  anno.on("selectionChanged", () => { zoom2Selected(); update_selector(); update_info(); });
   update_info();
 
   // configure the forward move
