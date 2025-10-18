@@ -1,11 +1,53 @@
+body {
+  font-family: Tahoma,Arial,Helvetica,sans-serif;
+}
+
+#toolbar {
+  text-align: center;
+  margin: auto;
+}
+.ButZoom {
+  width: 50px;
+  height: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  font-size: 30px;
+}
 #viewer {
   min-height: 300px;
-  height: 90vh;
+  height: 80vh;
   width: 100%;
+  margin-left: 20px;
+}
+
+#headline {
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  background: rgba(0,75,90,0.3);
+  text-align: center;
+  display: flex;
+}
+#pageTitle {
+  margin: auto;
+  font-size: 3.2em;
+}
+#UniLogo {
+  margin-left: 15px;
+}
+#HomeImg {
+  margin: auto;
+  height: 85%;
+}
+#HomeLink {
+    display: flex;
+    margin: 2px;
 }
 
 button {
-  background-color: #664df2;
+  background-color: rgba(0,75,90,0.9);
   border: none;
   color: white;
   padding: 3px 7px;
@@ -17,7 +59,11 @@ button {
 }
 
 button:hover {
-  background-color: #5641cc;
+  background-color: rgba(0,75,90,0.7);
+}
+
+#annoAdd {
+  display: none;
 }
 
 .icon {
@@ -38,7 +84,7 @@ button:hover {
 #info {
   width: 20vw;
   display: inline;
-  padding: 1vw;
+  padding: 1vw 1vw 1vw 0px;
   display: none;
 }
 .nav {
@@ -50,7 +96,7 @@ button:hover {
 #annoSelector {
   width: 75%;
   border: none;
-  background: #b4a9f2;
+  background: rgba(0,75,90,0.3);
   border-radius: 4px;
 }
 .annoChange {
@@ -76,7 +122,7 @@ button:hover {
   display: none;
 }
 #annoCheckZoom {
-  accent-color: #664df2;
+  accent-color: rgba(0,75,90,0.8);
 }
 .annoManageBut {
   margin-left: auto;

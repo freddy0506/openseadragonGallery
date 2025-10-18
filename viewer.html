@@ -10,8 +10,17 @@
   <link rel="stylesheet" href="./viewer.css">
 </head>
 <body>
+  <div id="headline" >
+    <img src="./icons/Uni-Luebeck-Logo.svg" id="UniLogo">
+    <div id="pageTitle">Präparatekasten</div>
+    <a onclick="web.goHome()" id="HomeLink"><img src="./icons/home.svg" id="HomeImg"> </a>
+  </div>
   <div id="mainContainer">
     <div id="viewer"></div>
+    <div id="toolbar">
+        <button onclick="viewer.osd.viewport.zoomBy(1.5)" class="ButZoom">+</button>
+        <button onclick="viewer.osd.viewport.zoomBy(1/1.5)" class="ButZoom">-</button>
+    </div>
 
     <div id="info">
       <div id="annoNav" class="nav">
@@ -19,6 +28,7 @@
         </select>
 
         <button id="annoBack" class="annoChange"> <i class="at-arrow-left"></i> </button>
+        <button id="annoAdd" class="annoChange">+</button>
         <button id="annoNext" class="annoChange"> <i class="at-arrow-right"></i> </button>
 
         <div>
@@ -28,7 +38,6 @@
       </div>
 
       <div id="editModeSelector" class="nav">
-        <button id="MoveMode" class="curModeButton"> <i class="at-arrows-move-navigate"></i> Move</button>
         <button id="RectMode"> <img src="/icons/rect.svg" class="icon"> Rechteck</button>
         <button id="PolyMode"> <img src="/icons/poly.svg" class="icon"> Polygon</button>
       </div>

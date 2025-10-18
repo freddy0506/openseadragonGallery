@@ -10,6 +10,7 @@ fetch("./annoList.json").then((res) => res.json().then((a) => {
   allImg = a;
   search();
 }));
+
 function search() {
   // if you search for nothing all should be shown
   if(!allImg) {
@@ -18,12 +19,13 @@ function search() {
   }
   fuse = new Fuse(allImg, {
     shouldSort: true,
+    threshold: 0.3,
     keys: get_keys()
   });
   if(searchInput.value == "") {
     update_search_list(allImg);
   } else {
-    update_search_list(fuse.search(searchInput.value).map((a) => a.item));
+    update_search_list(fuse.search(searchInput.value, 5).map((a) => a.item));
   }
 }
 searchInput.addEventListener("input", search);
@@ -62,17 +64,24 @@ function update_search_list(searchList) {
     let elemInfo = document.createElement("table");
     elemInfo.className = "itemInfo";
 
+
+    // Add the information to the table
     let nameRow = document.createElement("tr");
-    let keywordRow = document.createElement("tr");
-    let idRow = document.createElement("tr");
-
     nameRow.innerHTML = item.name;
-    keywordRow.innerHTML = item.keywords.toString();
-    idRow.innerHTML = item.id;
-
+    nameRow.className = "itemTitle"
     elemInfo.appendChild(nameRow);
+
+    let keywordRow = document.createElement("tr");
+    keywordRow.innerHTML = item.keywords.toString();
+    keywordRow.className = "itemKeywords"
     elemInfo.appendChild(keywordRow);
+
+    let idRow = document.createElement("tr");
+    idRow.innerHTML = item.id;
+    idRow.className = "itemId"
     elemInfo.appendChild(idRow);
+
+    // Add the table to the item
     elem.appendChild(elemInfo);
 
     // when clicked go to pic
@@ -85,8 +94,4 @@ function update_search_list(searchList) {
     });
     searchResult.appendChild(elem);
   });
-}
-
-let itemList = document.getElementsByClassName("imageItem");
-for( let i of itemList) {
 }

@@ -1,6 +1,7 @@
 *
+!README.md
 !.gitignore
 !viewer.*
 !index.*
 !uploadAnno.php
-!/icons
+!icons/

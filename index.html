@@ -5,6 +5,10 @@
   <meta charset="utf-8">
   <title>Histowiki</title>
   <style>
+    body {
+      font-family: Tahoma,Arial,Helvetica,sans-serif;
+      background: rgba(0,75,90,0.2);
+    }
     .grid {
       display: grid;
       columns: 1;
@@ -16,23 +20,44 @@
     .imageDiv {
       margin-right: 20px;
       max-width: 15vw;
+      max-height: 100%;
+      margin-top: auto;
+      margin-bottom: auto;
+      display: flex;
     }
     img {
-      display: block;
+      object-fit: cover;
+    }
+    #UniLogo {
       margin: auto;
+      display: block;
     }
     .item {
       display: flex;
       padding: 10px;
-      outline: 2px gray solid;
+      outline: 3px rgba(0,75,90, 0.9) solid;
       height: 25vw;
       max-height: 200px;
       font-size: 5vw;
       font-size: min(5vw, 20pt);
       margin: 1vw;
+      border-radius: 5px;
+      background: white;
     }
     .itemInfo {
       padding: 5px;
+      width: 100%;
+      height: 100%;
+    }
+    .itemId {
+      text-align: right;
+      display: table-cell;
+      vertical-align: bottom;
+    }
+    .itemTitle {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: rgba(0,75,90,0.9);
     }
     #searchInputDiv {
       width: 90vw;
@@ -42,7 +67,9 @@
       margin-right: auto;
       margin-left: auto;
       display: flex;
-      outline: 2px gray solid;
+      outline: 3px rgba(0,75,90, 0.9) solid;
+      border-radius: 5px;
+      background: white;
     }
     #filterDiv {
       width: 90vw;
@@ -68,6 +95,8 @@
       font-size: min(12vw, 50px);
     }
     #headline {
+    }
+    #titleText {
       text-align: center;
       margin-bottom: min(5vw, 40px);
     }
@@ -82,17 +111,20 @@
 </head>
 <body>
   <div id="headline" >
-    <div id="title" class="heading">
-      Präparatekasten
-    </div>
-    <div id="subTitle" class="heading">
-      von der Anatomie der Uni Lübeck
+    <img src="./icons/Siegel-Uni-Luebeck.svg" id="UniLogo">
+    <div id="titleText">
+      <div id="title" class="heading">
+        Präparatekasten
+      </div>
+      <div id="subTitle" class="heading">
+        der Anatomie der Universität zu Lübeck
+      </div>
     </div>
   </div>
 
   <div id="searchInputDiv">
     <input type="text" id="searchInput" maxlength=30>
-    <img src="./searchIcon.svg" id="searchIcon">
+    <img src="./icons/magnifying-glass.svg" id="searchIcon">
   </div>
   <div id="filterDiv">
        <input type="checkbox" id="checkID" class="filterCheckbox" checked>
