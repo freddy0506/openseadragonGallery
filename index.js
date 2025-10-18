@@ -10,6 +10,7 @@ fetch("./annoList.json").then((res) => res.json().then((a) => {
   allImg = a;
   search();
 }));
+
 function search() {
   // if you search for nothing all should be shown
   if(!allImg) {
@@ -18,12 +19,13 @@ function search() {
   }
   fuse = new Fuse(allImg, {
     shouldSort: true,
+    threshold: 0.3,
     keys: get_keys()
   });
   if(searchInput.value == "") {
     update_search_list(allImg);
   } else {
-    update_search_list(fuse.search(searchInput.value).map((a) => a.item));
+    update_search_list(fuse.search(searchInput.value, 5).map((a) => a.item));
   }
 }
 searchInput.addEventListener("input", search);
@@ -92,8 +94,4 @@ function update_search_list(searchList) {
     });
     searchResult.appendChild(elem);
   });
-}
-
-let itemList = document.getElementsByClassName("imageItem");
-for( let i of itemList) {
 }

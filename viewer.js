@@ -1,121 +1,245 @@
-// load last image
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
+// get the URL parameters
+const urlParams = new URLSearchParams(window.location.search);
 
-// get the name of the image to view 
-const image = urlParams.get('image')
+// Create interface to interact with the website
+let web = (function() {
 
+  // switch back to homepage while keeping the parameters
+  let goHome = function() {
+    if (this.edit) {
+      window.location.href = "/?edit=true";
+    } else if (this.shouldSeeAnno) {
+      window.location.href = "/?anno=true";
+    } else {
+      window.location.href = "/";
+    }
+  }
 
-const edit = (urlParams.get('edit') == "true") || false
-const seeAnno = (urlParams.get('anno') == "true") || edit 
+  let edit = (function() {
+    let edit = (urlParams.get('edit') == "true") || false;
+    // Show editing panel if the site is in editing mode
+    if(edit) {
+      document.getElementById("annoSave").style.display = "unset";
+      document.getElementById("annoAdd").style.display = "unset";
+      document.getElementById("annoSelector").style.width = "65%";
+      document.getElementById("annoEditNav").style.display = "unset";
+      document.getElementById("editModeSelector").style.display = "unset";
+    } else {
+      document.getElementById("annoInfo").style.display = "unset";
+    }
+    return edit;
+  })();
 
-if(seeAnno) {
-  document.getElementById("info").style.display = "unset";
-}
+  // Show infopanel if annotations are requested
+  let shouldSeeAnno = (function(edit) {
+    let seeAnno = (urlParams.get('anno') == "true") || edit;
 
-if(edit) {
-  document.getElementById("annoSave").style.display = "unset";
-  document.getElementById("annoEditNav").style.display = "unset";
-  document.getElementById("editModeSelector").style.display = "unset";
-} else {
-  document.getElementById("annoInfo").style.display = "unset";
-}
+    if(seeAnno) {
+      document.getElementById("info").style.display = "unset";
+    }
+    return seeAnno
+  })(edit);
 
-// define Annotorious for later use
-let anno;
-let viewer;
+  let annoIsSaved = function(saved) {
+    if (!edit) { return; }
+    let saveDisp = document.getElementById("annoSaveChanged");
+    if (saved) {
+      saveDisp.innerHTML = "Gespeichert!"
+      saveDisp.style.color = "unset";
+    } else {
+      saveDisp.innerHTML = "Nicht gespeichert"
+      saveDisp.style.color = "red";
+    }
+  }
 
-// define the current Annotation viewed
-let currentImage = urlParams.get('image') || 0
-
-
-// get the Image properties mainly size and number of zoom levels
-fetch(image + "/ImageProperties.xml")
-  .then((response) => response.text())
-  .then((xmlString) => {
-    //parse the xml
-    const parser = new DOMParser();
-    const xmlDoc = parser.
-      parseFromString(xmlString, "text/xml");
-    const imageXML = xmlDoc.querySelector("image").attributes;
-    
-
-    // start openseadragon
-    viewer = OpenSeadragon({
-      id:              "viewer",
-      prefixUrl:       "https://openseadragon.github.io/openseadragon/images/",
-      showNavigator:  true,
-      showZoomControl: false,
-      showHomeControl: false,
-      showFullPageControl: false,
-      tileSources: {
-        height: parseInt(imageXML.getNamedItem("height").value),
-        width:  parseInt(imageXML.getNamedItem("width").value),
-        tileSize: parseInt(imageXML.getNamedItem("tilesize").value),
-        minLevel: 1,
-        maxLevel: parseInt(imageXML.getNamedItem("levels").value),
-        getTileUrl: function( level, x, y ){
-          function toAlpha(n) {
-            abc = "ABCDEFGHIJKLMNOPQRStUVWXYZ"
-            return abc.charAt(n)
-          }
-
-          // This was mainly made with trial and error
-          // It calculates the path of each tile from the given cordinates and level
-          // One could probably make a more general for (i.a. a better way than a else if statement)
-          // but because we will probably never get any other pictures this will work
-          if (level < 4) {
-            kordStr = toAlpha(level-1) + toAlpha(x) + toAlpha(y);
-          } else if(level == 4) {
-            kordStr = "D" + toAlpha(x) + toAlpha(y) + "/AAA";
-          } else if(level == 5) {
-            xFolder = Math.floor(x/2)
-            yFolder = Math.floor(y/2)
-            kordStr =  "D" + toAlpha(xFolder) + toAlpha(yFolder) + "/B" + toAlpha(x%2) + toAlpha(y%2);
-          } else if(level == 6) {
-            xFolder = Math.floor(x/4)
-            yFolder = Math.floor(y/4)
-            kordStr =  "D" + toAlpha(xFolder) + toAlpha(yFolder) + "/C" + toAlpha(x%4) + toAlpha(y%4);
-          } else if(level == 7) {
-            xFolder = Math.floor(x/8)
-            yFolder = Math.floor(y/8)
-            kordStr =  "D" + toAlpha(xFolder) + toAlpha(yFolder) + "/D" + toAlpha(x%8) + toAlpha(y%8) + "/AAA";
-          } else if(level == 8) {
-            size = 16 
-            xFolderL1 = Math.floor(x/size)
-            yFolderL1 = Math.floor(y/size)
-            xFolderL2 = Math.floor((x%size)/2)
-            yFolderL2 = Math.floor((y%size)/2)
-            kordStr =  "D" + toAlpha(xFolderL1) + toAlpha(yFolderL1) + 
-                      "/D" + toAlpha(xFolderL2) + toAlpha(yFolderL2) + 
-                      "/B"  + toAlpha(x%2) + toAlpha(y%2);
-          } else if(level == 9) {
-            size = 32 
-            xFolderL1 = Math.floor(x/size)
-            yFolderL1 = Math.floor(y/size)
-            xFolderL2 = Math.floor((x%size)/4)
-            yFolderL2 = Math.floor((y%size)/4)
-            kordStr =  "D" + toAlpha(xFolderL1) + toAlpha(yFolderL1) + 
-                      "/D" + toAlpha(xFolderL2) + toAlpha(yFolderL2) + 
-                      "/C"  + toAlpha(x%4) + toAlpha(y%4);
-          }
-
-          // return the right image Path
-          return "./" + image + "/" + kordStr + ".jpg";
-        }
+  // create and listen for changes in the Annotationsselector
+  let annoSelect = document.getElementById("annoSelector");
+  let updateAnnoSelector = function(curAnno, annotationList) {
+    // fill selector with the ids and identifying names of the annotations
+    annoSelect.innerHTML = "";
+    let opt = document.createElement("option");
+    opt.value = "nothing";
+    opt.hidden = true;
+    annoSelect.appendChild(opt);
+    annotationList.forEach((a) => {
+      let opt = document.createElement("option");
+      opt.value = a.id;
+      let name_body = a.bodies.find((x) => x.purpose == "identifying");
+      if(name_body) {
+        opt.innerHTML = name_body.value;
       }
+      annoSelect.appendChild(opt);
     });
 
-    // configure viewer
-    viewer.zoomPerClick = 1;
+    // set Selector to currently selected Annotation
+    if(curAnno) {
+      annoSelect.value = curAnno.id;
+    }
+  }
 
-    // configure the annoViewer
-    anno = AnnotoriousOSD.createOSDAnnotator(viewer, {
+  // update the info window
+  let titleInp = document.getElementById("editTitle");
+  let infoInp = document.getElementById("editInfoBox");
+  let updateInfo = function(curAnno) {
+    let titleElem = document.getElementById("annoTitle");
+    let infoTextElem= document.getElementById("annoInfoText");
+
+    if(curAnno) {
+      document.getElementById("annoEditNav").style.visibility = "unset";
+      document.getElementById("annoInfo").style.visibility = "unset";
+
+      let titleAnno = curAnno.bodies.find((x) => x.purpose == "identifying");
+      let infoAnno = curAnno.bodies.find((x) => x.purpose == "describing")
+
+      if(edit) {
+        titleInp.value = titleAnno == undefined ? "" : titleAnno.value;
+        infoInp.value = infoAnno == undefined ? "" : infoAnno.value;
+      } else {
+        titleElem.innerHTML = titleAnno == undefined ? "" : titleAnno.value;
+        infoTextElem.innerHTML = infoAnno == undefined ? "" : infoAnno.value;
+      }
+
+    } else {
+      document.getElementById("annoEditNav").style.visibility = "hidden";
+      document.getElementById("annoInfo").style.visibility = "hidden";
+      return;
+    }
+  
+  }
+
+  let polyButton = document.getElementById("PolyMode");
+  let rectButton = document.getElementById("RectMode");
+  let editModeSelector = document.getElementById("editModeSelector");
+  let setMode = function(mode) {
+    switch (mode) {
+      case "POLY":
+        polyButton.className = "curModeButton";
+        rectButton.className = "";
+        editModeSelector.style.display = "unset";
+        break;
+      case "RECT":
+        polyButton.className = "";
+        rectButton.className = "curModeButton";
+        editModeSelector.style.display = "unset";
+        break;
+      case "MOVE":
+        polyButton.className = "";
+        rectButton.className = "";
+        editModeSelector.style.display = "none";
+        break;
+    }
+  }
+
+  return {
+    viewerId: "viewer",
+    imageId: urlParams.get('image'), // if no image was defined this is undefined
+    annoSaveBut: document.getElementById("annoSave"),
+    annoSelect,
+    titleInp,
+    infoInp,
+    annoNextBut: document.getElementById("annoNext"),
+    annoPrevBut: document.getElementById("annoBack"),
+    annoAdd: document.getElementById("annoAdd"),
+    deleteAnnoBut: document.getElementById("annoDelete"),
+    polyButton,
+    rectButton,
+    editModeSelector,
+    shouldSeeAnno,
+    edit,
+    goHome,
+    annoIsSaved,
+    updateInfo,
+    updateAnnoSelector,
+    setMode,
+  }
+})()
+
+// Create the Viewer
+let viewer = (async function(image) {
+  // Create the Openseadragon Viewer on basis of the Imageproperty file
+  let imagePropertyReq = await fetch(image + "/ImageProperties.xml");
+  let xmlString = await imagePropertyReq.text();
+
+  //parse the xml
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+  const imageXML = xmlDoc.querySelector("image").attributes;
+
+  let osd = OpenSeadragon({
+    id:              "viewer", // define the id of the viewer Div
+    prefixUrl:       "https://openseadragon.github.io/openseadragon/images/",
+    showNavigator:  true,
+    showZoomControl: false,
+    showHomeControl: false,
+    showFullPageControl: false,
+    zoomPerClick: 1,
+    tileSources: {
+      height: parseInt(imageXML.getNamedItem("height").value),
+      width:  parseInt(imageXML.getNamedItem("width").value),
+      tileSize: parseInt(imageXML.getNamedItem("tilesize").value),
+      minLevel: 1,
+      maxLevel: parseInt(imageXML.getNamedItem("levels").value),
+      // Function to parse the coordinates of each tile to paths of the image
+      getTileUrl: function( level, x, y ){
+        function toAlpha(n) {
+          abc = "ABCDEFGHIJKLMNOPQRStUVWXYZ"
+          return abc.charAt(n)
+        }
+
+        // This was mainly made with trial and error
+        // It calculates the path of each tile from the given cordinates and level
+        // One could probably make a more general for (i.a. a better way than a else if statement)
+        // but because we will probably never get any other pictures this will work
+        if (level < 4) {
+          kordStr = toAlpha(level-1) + toAlpha(x) + toAlpha(y);
+        } else if(level == 4) {
+          kordStr = "D" + toAlpha(x) + toAlpha(y) + "/AAA";
+        } else if(level == 5) {
+          xFolder = Math.floor(x/2)
+          yFolder = Math.floor(y/2)
+          kordStr =  "D" + toAlpha(xFolder) + toAlpha(yFolder) + "/B" + toAlpha(x%2) + toAlpha(y%2);
+        } else if(level == 6) {
+          xFolder = Math.floor(x/4)
+          yFolder = Math.floor(y/4)
+          kordStr =  "D" + toAlpha(xFolder) + toAlpha(yFolder) + "/C" + toAlpha(x%4) + toAlpha(y%4);
+        } else if(level == 7) {
+          xFolder = Math.floor(x/8)
+          yFolder = Math.floor(y/8)
+          kordStr =  "D" + toAlpha(xFolder) + toAlpha(yFolder) + "/D" + toAlpha(x%8) + toAlpha(y%8) + "/AAA";
+        } else if(level == 8) {
+          size = 16 
+          xFolderL1 = Math.floor(x/size)
+          yFolderL1 = Math.floor(y/size)
+          xFolderL2 = Math.floor((x%size)/2)
+          yFolderL2 = Math.floor((y%size)/2)
+          kordStr =  "D" + toAlpha(xFolderL1) + toAlpha(yFolderL1) + 
+            "/D" + toAlpha(xFolderL2) + toAlpha(yFolderL2) + 
+            "/B"  + toAlpha(x%2) + toAlpha(y%2);
+        } else if(level == 9) {
+          size = 32 
+          xFolderL1 = Math.floor(x/size)
+          yFolderL1 = Math.floor(y/size)
+          xFolderL2 = Math.floor((x%size)/4)
+          yFolderL2 = Math.floor((y%size)/4)
+          kordStr =  "D" + toAlpha(xFolderL1) + toAlpha(yFolderL1) + 
+            "/D" + toAlpha(xFolderL2) + toAlpha(yFolderL2) + 
+            "/C"  + toAlpha(x%4) + toAlpha(y%4);
+        }
+
+        // return the right image Path
+        return "./" + image + "/" + kordStr + ".jpg";
+      }
+    }
+  });
+
+  let anno = (function(viewer) {
+    // create and add the annotations viewer
+    let anno = AnnotoriousOSD.createOSDAnnotator(viewer, {
       autoSave: true,
     });
 
     // configure style of annotation
-    anno.setStyle((annotation, state) => {
+    anno.setStyle((_annotation, state) => {
       if (state && state.selected) {
         return {
           fill: '#ff0000',
@@ -134,84 +258,159 @@ fetch(image + "/ImageProperties.xml")
       };
     });
 
-    // load Annotation if requested
-    if(seeAnno) {
-      loadAnnos();
-    }
-});
-async function loadAnnos() {
-  try { await anno.loadAnnotations("./" + image + "/annotations.json"); } 
-  finally {
-    init();
-  }
-}
+    // return the module
+    return anno;
+  })(osd);
 
-// switch back to homepage while keeping the parameters
-function goHome() {
-    let params = []
-    if (urlParams.get("anno") == "true") {
-        params.push("anno=true")
+
+  /**
+   * An Interface to interact with the Annotations
+   */
+  let annoInt = (function(anno) {
+    async function loadAnnos() {
+      await anno.loadAnnotations("./" + image + "/annotations.json");
     }
 
-    if (urlParams.get("edit") == "true") {
-        params.push("edit=true")
+    function zoom2Selected() {
+      if(anno.getSelected().length == 0) { return; }
+      let shouldZoom = document.getElementById("annoCheckZoom").checked;
+
+      if(shouldZoom) {
+        anno.fitBoundsWithConstraints(anno.getSelected()[0].id, { padding: 40 });
+      }
     }
 
-    if (params.length > 0) {
-        window.location.href = "/?" + params.join("&");
-    } else {
-        window.location.href = "/";
+    // function to compare annotations by there name
+    function anno_cmp(a,b) {
+      let nameA = a.bodies.find((x) => x.purpose == "identifying");
+      let nameB = b.bodies.find((x) => x.purpose == "identifying");
+
+      if (!nameA && !nameB) { return 0; }
+      if (!nameA) { return 1; }
+      if (!nameB) { return -1; }
+
+      return nameA.value.localeCompare(nameB.value);
     }
-}
 
-// enable or disable edit mode
-function init() {
-  // get the Elements to edit
-  let annoSave = document.getElementById("annoSave");
-  let annoSelect = document.getElementById("annoSelector");
-  let titleEdit = document.getElementById("editTitle");
-  let infoEdit = document.getElementById("editInfoBox");
-
-  // function to compare annotations by there name
-  function anno_cmp(a,b) {
-    let nameA = a.bodies.find((x) => x.purpose == "identifying");
-    let nameB = b.bodies.find((x) => x.purpose == "identifying");
-
-    if (!nameA && !nameB) { return 0; }
-    if (!nameA) { return 1; }
-    if (!nameB) { return -1; }
-
-    return nameA.value.localeCompare(nameB.value);
-  }
-
-
-  function annoIsSaved(saved) {
-    let saveDisp = document.getElementById("annoSaveChanged");
-    if (saved) {
-      saveDisp.innerHTML = "Gespeichert!"
-      saveDisp.style.color = "unset";
-    } else {
-      saveDisp.innerHTML = "Nicht gespeichert"
-      saveDisp.style.color = "red";
+    function deleteCurAnno() {
+      anno.removeAnnotation(anno.getSelected()[0]);
     }
-  }
-  anno.on("updateAnnotation", () => { annoIsSaved(false); });
-  anno.on("deleteAnnotation", () => { annoIsSaved(false); });
-  anno.on("createAnnotation", () => { 
-    let curAnnoID = anno.getSelected()[0].id;
-    changeMode("MOVE");
-    anno.setSelected(curAnnoID);
-    annoIsSaved(false); 
-  });
-  
 
-  // When downloading the Annotations open them in new Tab
-  annoSave.addEventListener("click", function() {
-    let annotations = anno.getAnnotations();
-    //let req = new XMLHttpRequest();
+    function updateCurAnnoInfo(title, info) {
+
+      let curAnno = anno.getSelected()[0];
+      if(!curAnno) { return; }
+      let titleAnno = {
+        "annotation": curAnno.id,
+        "purpose": "identifying",
+        "value": title
+      }
+      let infoAnno = {
+        "annotation": curAnno.id,
+        "purpose": "describing",
+        "value": info
+      }
+      
+      curAnno.bodies = [ titleAnno, infoAnno ];
+      anno.updateAnnotation(curAnno);
+    }
+
+
+    function nextAnnoId(curAnnoId) {
+      // get List of annotations
+      let annotationList = anno.getAnnotations();
+      annotationList.sort(anno_cmp);
+
+      // find nextIndex
+      let i = annotationList.findIndex((a) => a.id == curAnnoId);
+      let nextId;
+      if(i+1 >= annotationList.length) {
+        nextId = annotationList[0].id;
+      } else {
+        nextId = annotationList[i+1].id;
+      }
+
+      return nextId
+    }
+
+    function prevAnnoId(curAnnoId) {
+      // get List of annotations
+      let annotationList = anno.getAnnotations();
+      annotationList.sort(anno_cmp);
+
+      // find previous Index
+      let i = annotationList.findIndex((a) => a.id == curAnnoId);
+      let prevId;
+      if(i-1 < 0) {
+        prevId = annotationList[annotationList.length-1].id;
+      } else {
+        prevId = annotationList[i-1].id;
+      }
+      return prevId;
+    }
+
+    // to select the annotation
+    // and zoom to it if needed
+    function selectAnno(id) {
+      anno.setSelected(id);
+      zoom2Selected();
+    }
+
+    function setMode(mode) {
+      switch (mode) {
+        case "POLY":
+          anno.setDrawingTool("polygon");
+          anno.setDrawingEnabled(true);
+          break;
+        case "RECT":
+          anno.setDrawingTool("rectangle");
+          anno.setDrawingEnabled(true);
+          break;
+        case "MOVE":
+          anno.setDrawingEnabled(false);
+          break;
+      }
+    }
+
+    function getAnnotations() {
+      let annoList = anno.getAnnotations()
+      annoList.sort(anno_cmp);
+      return annoList;
+    }
+    
+    function getCurAnno() {
+      return anno.getSelected()[0];
+    }
+
+    return {
+      loadAnnos,
+      zoom2Selected,
+      anno_cmp,
+      deleteCurAnno,
+      updateCurAnnoInfo,
+      nextAnnoId,
+      prevAnnoId,
+      selectAnno,
+      setMode,
+      getAnnotations,
+      getCurAnno,
+    };
+
+  })(anno);
+
+  return {
+    osd,
+    anno,
+    annoInt
+  };
+})(web.imageId);
+
+
+let backend = {
+  save: (async function(image, annotations) {
     let reqBody = JSON.stringify({
-      annotations: annotations,
-      picID: image
+      picID: image,
+      annotations: annotations
     });
 
     fetch("./uploadAnno.php", {
@@ -223,200 +422,143 @@ function init() {
     }).then((e) => {
         e.text().then((t) => {
             if( t == "Done") {
-                annoIsSaved(true);
+                return true;
             } else {
                 alert("Das Speichern hat nicht funktioniert");
+                return false;
             }
         });
     });
-  });
+  })
+}
 
-  // create and listen for changes in the Annotationsselector
-  function update_selector() {
-    // get annotation List
-    let annotationList = anno.getAnnotations();
-    annotationList.sort(anno_cmp);
+// The Module that connects everything. Mainly Eventlisteners
+let main = 
+  (async function() {
+    viewer = await viewer;
+    if (web.shouldSeeAnno) { await viewer.annoInt.loadAnnos(); }
+  })().then((function() {
+    // initialize the viewer and the web
+    web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+    web.updateInfo(viewer.annoInt.getCurAnno());
+    viewer.annoInt.setMode("MOVE");
+    web.setMode("MOVE");
+    if (web.edit) {
+      viewer.anno.setUserSelectAction("EDIT")
+    } else {
+      viewer.anno.setUserSelectAction("SELECT")
+    }
 
-    // fill selector with the ids and identifying names of the annotations
-    annoSelect.innerHTML = "";
-    let opt = document.createElement("option");
-    opt.value = "nothing";
-    opt.hidden = true;
-    annoSelect.appendChild(opt);
-    annotationList.forEach((a) => {
-      let opt = document.createElement("option");
-      opt.value = a.id;
-      let name_body = a.bodies.find((x) => x.purpose == "identifying");
-      if(name_body) {
-        opt.innerHTML = name_body.value;
+
+    // helper function to update viewer and web when changing annotation
+    function selectAnnoMain(id) {
+      viewer.annoInt.selectAnno(id);
+      web.updateInfo(viewer.annoInt.getCurAnno());
+      web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+    }
+
+    // helper function to set the anno Info from the textbox to the selector and the  viewer
+    function setAnnoInfo() {
+      if(!web.edit) { return; }
+      viewer.annoInt.updateCurAnnoInfo(
+        web.titleInp.value,
+        web.infoInp.value,
+      );
+      web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+    }
+
+    // update viewer and web on change
+    web.titleInp.addEventListener("input", setAnnoInfo)
+    web.infoInp.addEventListener("input", setAnnoInfo)
+
+    // select Annotation when selected in selector
+    web.annoSelect.addEventListener("input", (e) => selectAnnoMain(e.target.value));
+    viewer.anno.on("selectionChanged", () => { 
+      let currentAnno = viewer.annoInt.getCurAnno();
+      if(currentAnno) {
+        viewer.annoInt.zoom2Selected();
+        web.updateInfo(viewer.annoInt.getCurAnno());
+        web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+      } else {
+        viewer.annoInt.zoom2Selected();
+        web.updateInfo(viewer.annoInt.getCurAnno());
+        web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
       }
-      annoSelect.appendChild(opt);
     });
 
-    // set Selector to currently selected Annotation
-    let curAnno = anno.getSelected()[0];
-    if(curAnno) {
-      annoSelect.value = curAnno.id;
-    }
-  }
-  update_selector();
+    // controls for keys
+    document.addEventListener("keydown", (k) => {
 
-  function zoom2Selected() {
-    if(anno.getSelected().length == 0) { return; }
-    let shouldZoom = document.getElementById("annoCheckZoom").checked;
-    if(shouldZoom) {
-      anno.fitBoundsWithConstraints(anno.getSelected()[0].id, { padding: 40 });
-    }
-  }
-  // to select the annotation
-  // and zoom to it if needed
-  function select_anno(id) {
-    anno.setSelected(id);
-    zoom2Selected();
-
-    update_selector();
-    update_info();
-  }
-  annoSelect.addEventListener("input", (e) => select_anno(e.target.value));
-
-  // update the info window
-  function update_info() {
-    let titleElem = document.getElementById("annoTitle");
-    let infoTextElem= document.getElementById("annoInfoText");
-
-    let curAnno = anno.getSelected()[0];
-
-    if(curAnno) {
-      document.getElementById("annoEditNav").style.visibility = "unset";
-      document.getElementById("annoInfo").style.visibility = "unset";
-
-      let titleAnno = curAnno.bodies.find((x) => x.purpose == "identifying");
-      let infoAnno = curAnno.bodies.find((x) => x.purpose == "describing")
-
-      if(edit) {
-        titleEdit.value = titleAnno == undefined ? "" : titleAnno.value;
-        infoEdit.value = infoAnno == undefined ? "" : infoAnno.value;
+      // If an anno is selected
+      if(!viewer.annoInt.getCurAnno()) { 
+        if(k.key == "Escape" && web.edit) {
+          viewer.annoInt.setMode("MOVE");
+          web.setMode("MOVE");
+        }
       } else {
-        titleElem.innerHTML = titleAnno == undefined ? "" : titleAnno.value;
-        infoTextElem.innerHTML = infoAnno == undefined ? "" : infoAnno.value;
+        if(k.key == "Delete" && web.edit) {
+          viewer.annoInt.deleteCurAnno();
+        }
+
+        if(k.key == "Escape") {
+          selectAnnoMain(undefined);
+        }
       }
 
-    } else {
-      document.getElementById("annoEditNav").style.visibility = "hidden";
-      document.getElementById("annoInfo").style.visibility = "hidden";
-      return;
-    }
-  
-  }
-  anno.on("selectionChanged", () => { zoom2Selected(); update_selector(); update_info(); });
-  update_info();
+      /*
+      if(k.key == "ArrowLeft") {
+        let prevId = viewer.annoInt.prevAnnoId(viewer.annoInt.getCurAnno().id);
+        selectAnnoMain(prevId);
+      } else if (k.key == "ArrowRight") {
+        let nextId = viewer.annoInt.nextAnnoId(viewer.annoInt.getCurAnno().id);
+        selectAnnoMain(nextId);
+      }*/
+    });
 
-  // configure the forward move
-  function nextAnno() {
-    // get List of annotations
-    let annotationList = anno.getAnnotations();
-    annotationList.sort(anno_cmp);
+    // add functionallity to the next and prev buttons
+    web.annoNextBut.addEventListener("click", () => {
+      let nextId = viewer.annoInt.nextAnnoId(viewer.annoInt.getCurAnno().id);
+      selectAnnoMain(nextId);
+    });
+    web.annoPrevBut.addEventListener("click", () => {
+      let prevId = viewer.annoInt.prevAnnoId(viewer.annoInt.getCurAnno().id);
+      selectAnnoMain(prevId);
+    });
 
-    // find nextIndex
-    let i = annotationList.findIndex((a) => a.id == annoSelect.value);
-    let nextId;
-    if(i+1 >= annotationList.length) {
-      nextId = annotationList[0].id;
-    } else {
-      nextId = annotationList[i+1].id;
-    }
-    select_anno(nextId);
-  }
-  document.getElementById("annoNext").addEventListener("click", nextAnno);
 
-  function prevAnno() {
-    // get List of annotations
-    let annotationList = anno.getAnnotations();
-    annotationList.sort(anno_cmp);
+    // delete Annottation on button press
+    web.deleteAnnoBut.addEventListener("click", viewer.annoInt.deleteCurAnno);
 
-    // find nextIndex
-    let i = annotationList.findIndex((a) => a.id == annoSelect.value);
-    let nextId;
-    if(i-1 < 0) {
-      nextId = annotationList[annotationList.length-1].id;
-    } else {
-      nextId = annotationList[i-1].id;
-    }
-    select_anno(nextId);
-  }
-  document.getElementById("annoBack").addEventListener("click", prevAnno);
-  document.addEventListener("keydown", (k) => {
-    if(k.key == "Delete" && edit) {
-      deleteAnno()
-    }
+    // Save annotation on button press and update the saved text
+    web.annoSaveBut.addEventListener("click", function() {
+      backend.save(web.imageId, viewer.anno.getAnnotations()).then((saved) => web.annoIsSaved(saved))
+    });
 
-    if(k.key == "ArrowLeft") {
-      prevAnno();
-    } else if (k.key == "ArrowRight") {
-      nextAnno();
-    }
-  });
+    // adding a new Annotation
+    web.annoAdd.addEventListener("click", () => {
+      viewer.annoInt.setMode("RECT")
+      web.setMode("RECT")
+    });
 
-  function deleteAnno() {
-    anno.removeAnnotation(anno.getSelected()[0]);
-  }
-  document.getElementById("annoDelete").addEventListener("click", deleteAnno);
+    // switch editing modes
+    web.polyButton.addEventListener("click", () => {
+      viewer.annoInt.setMode("POLY");
+      web.setMode("POLY");
+    });
 
-  function update_anno_info() {
-    if(!edit) { return; }
+    web.rectButton.addEventListener("click", () => {
+      viewer.annoInt.setMode("RECT");
+      web.setMode("RECT");
+    });
 
-    let curAnno = anno.getSelected()[0];
-    if(!curAnno) { return; }
-    let titleAnno = {
-      "annotation": curAnno.id,
-      "purpose": "identifying",
-      "value": titleEdit.value
-    }
-    let infoAnno = {
-      "annotation": curAnno.id,
-      "purpose": "describing",
-      "value": infoEdit.value
-    }
-    
-    curAnno.bodies = [ titleAnno, infoAnno ];
-    anno.updateAnnotation(curAnno);
-    update_selector();
-  }
-  infoEdit.addEventListener("input", update_anno_info);
-  titleEdit.addEventListener("input", update_anno_info);
-
-  let polyButton = document.getElementById("PolyMode");
-  let moveButton = document.getElementById("MoveMode");
-  let rectButton = document.getElementById("RectMode");
-  function changeMode(mode) {
-    switch (mode) {
-      case "POLY":
-        polyButton.className = "curModeButton";
-        moveButton.className = "";
-        rectButton.className = "";
-        anno.setDrawingTool("polygon");
-        anno.setDrawingEnabled(true);
-        anno.setUserSelectAction("EDIT");
-        break;
-      case "RECT":
-        polyButton.className = "";
-        moveButton.className = "";
-        rectButton.className = "curModeButton";
-        anno.setDrawingTool("rectangle");
-        anno.setDrawingEnabled(true);
-        anno.setUserSelectAction("EDIT");
-        break;
-      case "MOVE":
-        polyButton.className = "";
-        moveButton.className = "curModeButton";
-        rectButton.className = "";
-        anno.setDrawingEnabled(false);
-        if(!edit) { anno.setUserSelectAction("SELECT"); }
-        break;
-    }
-  }
-  changeMode("MOVE");
-  polyButton.addEventListener("click", () => {changeMode("POLY");});
-  moveButton.addEventListener("click", () => {changeMode("MOVE");});
-  rectButton.addEventListener("click", () => {changeMode("RECT");});
-}
+    // update the saved text accordingly
+    viewer.anno.on("updateAnnotation", () => { web.annoIsSaved(false); });
+    viewer.anno.on("deleteAnnotation", () => { web.annoIsSaved(false); });
+    viewer.anno.on("createAnnotation", () => { 
+      let curAnnoID = viewer.anno.getSelected()[0].id;
+      viewer.annoInt.setMode("MOVE");
+      web.setMode("MOVE");
+      viewer.anno.setSelected(curAnnoID);
+      web.annoIsSaved(false); 
+    });
+}));
