@@ -130,6 +130,36 @@ let web = (function() {
     }
   }
 
+  let annoAddSub = document.getElementById("annoAddSub");
+  let updateSubAnnoSelector = function(annoList) {
+    let selectorDiv = document.getElementById("buttonGrid");
+    let butList = [];
+    selectorDiv.innerHTML = "";
+
+    // Dont show if there is only one option
+    if(annoList.length > 2 || edit) {
+      for(let i = 0; i<annoList.length; i+=1){
+        let but = document.createElement("button");
+        but.value = annoList[i].id;
+        but.className = "SubAnnoBut";
+        but.innerHTML = (i+1).toString();
+        butList.push(but);
+        selectorDiv.appendChild(but)
+      }
+    }
+
+    if(annoList.length > 0 && edit) {
+      let but = document.createElement("button");
+      but.id = "annoAddSub";
+      but.className = "SubAnnoBut";
+      but.innerHTML = "+";
+      annoAddSub = but;
+      selectorDiv.appendChild(but)
+      return { butList, annoAddSub };
+    }
+    return { butList };
+  }
+
   return {
     viewerId: "viewer",
     imageId: urlParams.get('image'), // if no image was defined this is undefined
@@ -145,11 +175,13 @@ let web = (function() {
     rectButton,
     editModeSelector,
     shouldSeeAnno,
+    annoAddSub,
     edit,
     goHome,
     annoIsSaved,
     updateInfo,
     updateAnnoSelector,
+    updateSubAnnoSelector,
     setMode,
   }
 })()
@@ -292,13 +324,78 @@ let viewer = (async function(image) {
       return nameA.value.localeCompare(nameB.value);
     }
 
+    // function to compare annotations by there date and prioitising dates without linking body
+    function anno_cmp_date(a,b) {
+      let linkA = a.bodies.find((x) => x.purpose == "linking");
+      let linkB = b.bodies.find((x) => x.purpose == "linking");
+
+
+      if (!linkA && !linkB) { return 0; }
+      if (!linkA) { return -1; }
+      if (!linkB) { return 1; }
+
+      return a.target.created - b.target.created;
+    }
+
     function deleteCurAnno() {
+      // if its a sub anno dont worry
+      if(anno.getSelected()[0].id != getCurAnno().id) {
+        anno.removeAnnotation(anno.getSelected()[0]);
+        return;
+      }
+
+      // else its a master Anno
+      let relatetList = getRelatetAnno(getCurAnno());
+      // if it as no realives dont worry
+      if (relatetList.length == 1) {
+        anno.removeAnnotation(anno.getSelected()[0]);
+        return;
+      }
+      // if it does:
+      // Create new main node
+      relatetList[1].bodies = relatetList[0].bodies;
+      anno.updateAnnotation(relatetList[1]);
+
+      // link all notes to that one
+      relatetList.slice(2).forEach((a) => {
+        a.bodies = [{
+          "annotation": a.id,
+          "purpose": "linking",
+          "value": relatetList[1].id
+        }];
+        anno.updateAnnotation(a);
+      });
+
+      // now we can delete it
       anno.removeAnnotation(anno.getSelected()[0]);
+      return;
+    }
+
+    function findMasterAnno(annotation) {
+      if(annotation == undefined) { return undefined; }
+      let link = annotation.bodies.find((x) => x.purpose == "linking");
+      if(link == undefined) {
+        return annotation;
+      }
+
+      return anno.getAnnotations().find((x) => x.id == link.value)
+    }
+
+    function getRelatetAnno(annotation) {
+      if (annotation == undefined) { return []; }
+      let mainAnno = findMasterAnno(annotation);
+
+      let list = anno.getAnnotations().filter((x) => x.bodies.find((y) => y.purpose == "linking" && y.value == mainAnno.id))
+
+      list.push(mainAnno);
+      list.sort(anno_cmp_date);
+
+      return list;
     }
 
     function updateCurAnnoInfo(title, info) {
 
-      let curAnno = anno.getSelected()[0];
+      let curAnno = findMasterAnno(anno.getSelected()[0]);
       if(!curAnno) { return; }
       let titleAnno = {
         "annotation": curAnno.id,
@@ -318,7 +415,7 @@ let viewer = (async function(image) {
 
     function nextAnnoId(curAnnoId) {
       // get List of annotations
-      let annotationList = anno.getAnnotations();
+      let annotationList = anno.getAnnotations().filter((x) => x == findMasterAnno(x));
       annotationList.sort(anno_cmp);
 
       // find nextIndex
@@ -373,13 +470,13 @@ let viewer = (async function(image) {
     }
 
     function getAnnotations() {
-      let annoList = anno.getAnnotations()
+      let annoList = anno.getAnnotations().filter((x) => findMasterAnno(x) == x)
       annoList.sort(anno_cmp);
       return annoList;
     }
     
     function getCurAnno() {
-      return anno.getSelected()[0];
+      return findMasterAnno(anno.getSelected()[0]);
     }
 
     return {
@@ -394,6 +491,7 @@ let viewer = (async function(image) {
       setMode,
       getAnnotations,
       getCurAnno,
+      getRelatetAnno,
     };
 
   })(anno);
@@ -450,12 +548,45 @@ let main =
     }
 
 
+    // state of the Website
+    // set if the added Annotation should be a sub Annotation or a main Annotation
+    let addWhatAnno = "main";
+
+    // helper function to update the button grid for sub annotations
+    function updateSubAnnoSelector(anno) {
+      let annoList = viewer.annoInt.getRelatetAnno(anno);
+      let updateSelectorResults = web.updateSubAnnoSelector(annoList);
+      let butList = updateSelectorResults.butList;
+
+      // connect the right button action to each button
+      butList.forEach((b) => {
+        b.addEventListener("click", () => { selectAnnoMain(b.value) })
+
+        if(b.value == viewer.anno.getSelected()[0].id) {
+          b.className = b.className + " curModeButton";
+        }
+      });
+
+      if(web.edit && annoList.length > 0) {
+        // adding a new sub Annotation
+        let annoAddSub = updateSelectorResults.annoAddSub;
+        annoAddSub.addEventListener("click", () => {
+          addWhatAnno = "sub:" + viewer.annoInt.getCurAnno().id;
+          viewer.annoInt.setMode("RECT")
+          web.setMode("RECT")
+        });
+      }
+
+    }
+
     // helper function to update viewer and web when changing annotation
     function selectAnnoMain(id) {
       viewer.annoInt.selectAnno(id);
       web.updateInfo(viewer.annoInt.getCurAnno());
       web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+      updateSubAnnoSelector(viewer.annoInt.getCurAnno());
     }
+
 
     // helper function to set the anno Info from the textbox to the selector and the  viewer
     function setAnnoInfo() {
@@ -479,10 +610,12 @@ let main =
         viewer.annoInt.zoom2Selected();
         web.updateInfo(viewer.annoInt.getCurAnno());
         web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+        updateSubAnnoSelector(viewer.annoInt.getCurAnno());
       } else {
         viewer.annoInt.zoom2Selected();
         web.updateInfo(viewer.annoInt.getCurAnno());
         web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+        updateSubAnnoSelector(viewer.annoInt.getCurAnno());
       }
     });
 
@@ -534,8 +667,10 @@ let main =
       backend.save(web.imageId, viewer.anno.getAnnotations()).then((saved) => web.annoIsSaved(saved))
     });
 
-    // adding a new Annotation
+
+    // adding a new main Annotation
     web.annoAdd.addEventListener("click", () => {
+      addWhatAnno = "main";
       viewer.annoInt.setMode("RECT")
       web.setMode("RECT")
     });
@@ -555,6 +690,16 @@ let main =
     viewer.anno.on("updateAnnotation", () => { web.annoIsSaved(false); });
     viewer.anno.on("deleteAnnotation", () => { web.annoIsSaved(false); });
     viewer.anno.on("createAnnotation", () => { 
+      if(addWhatAnno.split(":")[0] == "sub") {
+        let curAnno = viewer.annoInt.getCurAnno();
+        curAnno.bodies = [{
+          "annotation": curAnno.id,
+          "purpose": "linking",
+          "value": addWhatAnno.split(":")[1]
+        }];
+        viewer.anno.updateAnnotation(curAnno);
+      }
+
       let curAnnoID = viewer.anno.getSelected()[0].id;
       viewer.annoInt.setMode("MOVE");
       web.setMode("MOVE");

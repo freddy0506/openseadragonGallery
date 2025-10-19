@@ -15,6 +15,18 @@ body {
   margin-bottom: 7px;
   font-size: 30px;
 }
+
+.SubAnnoBut {
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  margin-right: 5px;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  font-size: 25px;
+  border-radius: 20px;
+}
+
 #viewer {
   min-height: 300px;
   height: 80vh;
@@ -142,5 +154,5 @@ button:hover {
   display: none;
 }
 .curModeButton {
-  background-color: #403099;
+  background-color: rgba(0,75,90,0.7);
 }
