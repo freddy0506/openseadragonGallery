@@ -534,7 +534,10 @@ let backend = {
 let main = 
   (async function() {
     viewer = await viewer;
-    if (web.shouldSeeAnno) { await viewer.annoInt.loadAnnos(); }
+    if (web.shouldSeeAnno) {
+      try { await viewer.annoInt.loadAnnos(); }
+      catch { console.log("No annotationsfile found"); }
+    }
   })().then((function() {
     // initialize the viewer and the web
     web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
