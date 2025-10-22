@@ -1,3 +1,9 @@
+// check if this site links to anything
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get("to") != undefined) {
+  window.location.href = "/viewer.html?anno=true&image=" + urlParams.get("to");
+}
+
 let searchInput = document.getElementById("searchInput");
 let searchResult = document.getElementById("searchResults");
 let check_id = document.getElementById("checkID");
