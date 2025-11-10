@@ -42,10 +42,13 @@ body {
   text-align: center;
   display: flex;
 }
-#pageTitle {
+#pageTitleBlock {
   margin: auto;
+}
+#pageTitle {
   font-size: 3.2em;
 }
+
 #UniLogo {
   margin-left: 15px;
 }
