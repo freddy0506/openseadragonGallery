@@ -137,7 +137,7 @@ let web = (function() {
     selectorDiv.innerHTML = "";
 
     // Dont show if there is only one option
-    if(annoList.length > 2 || edit) {
+    if(annoList.length > 1 || edit) {
       for(let i = 0; i<annoList.length; i+=1){
         let but = document.createElement("button");
         but.value = annoList[i].id;
