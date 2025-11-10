@@ -78,7 +78,7 @@ function update_search_list(searchList) {
     elemInfo.appendChild(nameRow);
 
     let keywordRow = document.createElement("tr");
-    keywordRow.innerHTML = item.keywords.toString();
+    keywordRow.innerHTML = item.keywords.join(", ");
     keywordRow.className = "itemKeywords"
     elemInfo.appendChild(keywordRow);
 
