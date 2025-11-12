@@ -57,18 +57,47 @@ let web = (function() {
   let updateAnnoSelector = function(curAnno, annotationList) {
     // fill selector with the ids and identifying names of the annotations
     annoSelect.innerHTML = "";
+    
+    // add the option ot not select anything
     let opt = document.createElement("option");
     opt.value = "nothing";
     opt.hidden = true;
     annoSelect.appendChild(opt);
-    annotationList.forEach((a) => {
+
+    // helper function to create option html element from anno 
+    function mkOption(a) {
       let opt = document.createElement("option");
       opt.value = a.id;
       let name_body = a.bodies.find((x) => x.purpose == "identifying");
       if(name_body) {
         opt.innerHTML = name_body.value;
       }
-      annoSelect.appendChild(opt);
+      return opt;
+    }
+
+    // Group them
+    groups = {}
+    annotationList.forEach((a) => {
+      let tagObj = a.bodies.find((x) => x.purpose == "tagging");
+
+      // if grouping possible do that, else dont
+      if(tagObj && tagObj.value != undefined) {
+        // create or append to group list
+        if (groups[tagObj.value] == undefined) {
+          groups[tagObj.value] = [ a ];
+        } else {
+          groups[tagObj.value].push(a);
+        }
+      } else {
+        annoSelect.appendChild(mkOption(a));
+      }
+    });
+
+    Object.keys(groups).forEach((g) => {
+      let subOpt = document.createElement("optgroup");
+      subOpt.label = g;
+      groups[g].forEach((a) => subOpt.appendChild(mkOption(a)));
+      annoSelect.appendChild(subOpt);
     });
 
     // set Selector to currently selected Annotation
@@ -80,6 +109,7 @@ let web = (function() {
   // update the info window
   let titleInp = document.getElementById("editTitle");
   let infoInp = document.getElementById("editInfoBox");
+  let groupInp = document.getElementById("editGroup");
   let updateInfo = function(curAnno) {
     let titleElem = document.getElementById("annoTitle");
     let infoTextElem= document.getElementById("annoInfoText");
@@ -92,6 +122,14 @@ let web = (function() {
       let infoAnno = curAnno.bodies.find((x) => x.purpose == "describing")
 
       if(edit) {
+        // set the group selector
+        let groupAnno = curAnno.bodies.find((x) => x.purpose == "tagging")
+        if(groupAnno) {
+          groupInp.value = groupAnno.value;
+        } else {
+          groupInp.value = "nothing";
+        }
+
         titleInp.value = titleAnno == undefined ? "" : titleAnno.value;
         infoInp.value = infoAnno == undefined ? "" : infoAnno.value;
       } else {
@@ -167,6 +205,7 @@ let web = (function() {
     annoSelect,
     titleInp,
     infoInp,
+    groupInp,
     annoNextBut: document.getElementById("annoNext"),
     annoPrevBut: document.getElementById("annoBack"),
     annoAdd: document.getElementById("annoAdd"),
@@ -317,11 +356,20 @@ let viewer = (async function(image) {
       let nameA = a.bodies.find((x) => x.purpose == "identifying");
       let nameB = b.bodies.find((x) => x.purpose == "identifying");
 
-      if (!nameA && !nameB) { return 0; }
-      if (!nameA) { return 1; }
-      if (!nameB) { return -1; }
+      let groupA = a.bodies.find((x) => x.purpose == "tagging");
+      let groupB = b.bodies.find((x) => x.purpose == "tagging");
 
-      return nameA.value.localeCompare(nameB.value);
+      if (!groupA &&  groupB) { return  1; }
+      if ( groupA && !groupB) { return -1; }
+
+      if (groupA == groupB) {
+        if (!nameA && !nameB) { return 0; }
+        if (!nameA) { return 1; }
+        if (!nameB) { return -1; }
+
+        return nameA.value.localeCompare(nameB.value);
+      }
+      return groupA.value.localeCompare(groupB.value);
     }
 
     // function to compare annotations by there date and prioitising dates without linking body
@@ -393,22 +441,34 @@ let viewer = (async function(image) {
       return list;
     }
 
-    function updateCurAnnoInfo(title, info) {
+    function updateCurAnnoInfo(title, info, group) {
 
       let curAnno = findMasterAnno(anno.getSelected()[0]);
       if(!curAnno) { return; }
+
       let titleAnno = {
         "annotation": curAnno.id,
         "purpose": "identifying",
         "value": title
       }
+
       let infoAnno = {
         "annotation": curAnno.id,
         "purpose": "describing",
         "value": info
       }
-      
       curAnno.bodies = [ titleAnno, infoAnno ];
+
+
+      // if group is set add it
+      if(group) {
+        curAnno.bodies.push({
+          "annotation": curAnno.id,
+          "purpose": "tagging",
+          "value": group
+        })
+      }
+      
       anno.updateAnnotation(curAnno);
     }
 
@@ -432,7 +492,7 @@ let viewer = (async function(image) {
 
     function prevAnnoId(curAnnoId) {
       // get List of annotations
-      let annotationList = anno.getAnnotations();
+      let annotationList = anno.getAnnotations().filter((x) => x == findMasterAnno(x));
       annotationList.sort(anno_cmp);
 
       // find previous Index
@@ -597,6 +657,7 @@ let main =
       viewer.annoInt.updateCurAnnoInfo(
         web.titleInp.value,
         web.infoInp.value,
+        (web.groupInp.value == "nothing")? undefined : web.groupInp.value
       );
       web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
     }
@@ -604,6 +665,7 @@ let main =
     // update viewer and web on change
     web.titleInp.addEventListener("input", setAnnoInfo)
     web.infoInp.addEventListener("input", setAnnoInfo)
+    web.groupInp.addEventListener("input", setAnnoInfo)
 
     // select Annotation when selected in selector
     web.annoSelect.addEventListener("input", (e) => selectAnnoMain(e.target.value));
