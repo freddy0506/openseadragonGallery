@@ -571,22 +571,22 @@ let backend = {
       annotations: annotations
     });
 
-    fetch("./uploadAnno.php", {
+    let e = await fetch("./uploadAnno.php", {
       method: "POST",
       body: reqBody,
       headers: {
         "Content-type": "application/json; charset=UTF-8"
       }
-    }).then((e) => {
-        e.text().then((t) => {
-            if( t == "Done") {
-                return true;
-            } else {
-                alert("Das Speichern hat nicht funktioniert");
-                return false;
-            }
-        });
     });
+
+    let message = await e.text();
+
+    if( message == "Done") {
+        return true;
+    } else {
+        alert("Das Speichern hat nicht funktioniert");
+        return false;
+    }
   })
 }
 
