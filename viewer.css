@@ -106,7 +106,7 @@ button:hover {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 #annoSelector {
   width: 75%;
@@ -158,4 +158,16 @@ button:hover {
 }
 .curModeButton {
   background-color: rgba(0,75,90,0.7);
+}
+
+#ImgTitleDiv {
+  display: flex;
+  margin-bottom: 10px;
+}
+#ImgTitle {
+  font-size: 15pt;
+}
+#ImgSubTitle {
+  margin-top: auto;
+  margin-left: 15px;
 }

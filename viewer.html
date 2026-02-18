@@ -1,86 +1,102 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <script src="https://cdn.jsdelivr.net/npm/openseadragon@latest/build/openseadragon/openseadragon.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@vectopus/atlas-icons/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@3.4.0/dist/annotorious-openseadragon.css">
-  <script src="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@3.4.0/dist/annotorious-openseadragon.js"></script>
+	<head>
+		<script src="https://cdn.jsdelivr.net/npm/openseadragon@latest/build/openseadragon/openseadragon.min.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/@vectopus/atlas-icons/style.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@3.4.0/dist/annotorious-openseadragon.css">
+		<script src="https://cdn.jsdelivr.net/npm/@annotorious/openseadragon@3.4.0/dist/annotorious-openseadragon.js"></script>
 
-  <meta charset="utf-8">
-  <title>Histowiki</title>
-  <link rel="stylesheet" href="./viewer.css">
-</head>
-<body>
-  <div id="headline" >
-    <img src="./icons/Uni-Luebeck-Logo.svg" id="UniLogo">
-    <div id="pageTitleBlock">
-      <div id="pageTitle">Präparatekasten</div>
-      <div id="pageSubTitle">des Instituts für Anatomie der Universität zu Lübeck</div>
-    </div>
-    <a onclick="web.goHome()" id="HomeLink"><img src="./icons/home.svg" id="HomeImg"> </a>
-  </div>
-  <div id="mainContainer">
-    <div id="viewer"></div>
-    <div id="toolbar">
-        <button onclick="viewer.osd.viewport.zoomBy(1.5)" class="ButZoom">+</button>
-        <button onclick="viewer.osd.viewport.zoomBy(1/1.5)" class="ButZoom">-</button>
-    </div>
+		<meta charset="utf-8">
+		<title>Histowiki</title>
+		<link rel="stylesheet" href="./viewer.css">
+	</head>
+	<body>
+		<div id="headline">
+			<img src="./icons/Uni-Luebeck-Logo.svg" id="UniLogo">
+			<div id="pageTitleBlock">
+				<div id="pageTitle">Präparatekasten</div>
+				<div id="pageSubTitle">des Instituts für Anatomie der Universität zu Lübeck</div>
+			</div>
+			<a onclick="web.goHome()" id="HomeLink"><img src="./icons/home.svg" id="HomeImg"></a>
+		</div>
+		<div id="ImgTitleDiv">
+			<div id="ImgTitle"></div>
+			<div id="ImgSubTitle"></div>
+		</div>
+		<div id="mainContainer">
+			<div id="viewer"></div>
+			<div id="toolbar">
+				<button onclick="viewer.osd.viewport.zoomBy(1.5)" class="ButZoom">+</button>
+				<button onclick="viewer.osd.viewport.zoomBy(1/1.5)" class="ButZoom">-</button>
+			</div>
 
-    <div id="info">
-      <div id="annoNav" class="nav">
-        <select id="annoSelector">
-        </select>
+			<div id="info">
+				<div id="annoNav" class="nav">
+					<select id="annoSelector">
+					</select>
 
-        <button id="annoBack" class="annoChange"> <i class="at-arrow-left"></i> </button>
-        <button id="annoAdd" class="annoChange">+</button>
-        <button id="annoNext" class="annoChange"> <i class="at-arrow-right"></i> </button>
+					<button id="annoBack" class="annoChange">
+						<i class="at-arrow-left"></i>
+					</button>
+					<button id="annoAdd" class="annoChange">+</button>
+					<button id="annoNext" class="annoChange">
+						<i class="at-arrow-right"></i>
+					</button>
 
-        <div>
-         <input type="checkbox" id="annoCheckZoom" checked>
-          <label for="annoCheckZoom">Zu Annotation Zoomen</label><br>
-        </div>
-      </div>
+					<div>
+						<input type="checkbox" id="annoCheckZoom" checked>
+						<label for="annoCheckZoom">Zu Annotation Zoomen</label><br>
+					</div>
+				</div>
 
-      <div id="subAnnoNav" class="nav">
-        <div id="buttonGrid"></div>
-      </div>
+				<div id="subAnnoNav" class="nav">
+					<div id="buttonGrid"></div>
+				</div>
 
-      <div id="editModeSelector" class="nav">
-        <button id="RectMode"> <img src="/icons/rect.svg" class="icon"> Rechteck</button>
-        <button id="PolyMode"> <img src="/icons/poly.svg" class="icon"> Polygon</button>
-      </div>
+				<div id="editModeSelector" class="nav">
+					<button id="RectMode">
+						<img src="/icons/rect.svg" class="icon">
+						Rechteck
+					</button>
+					<button id="PolyMode">
+						<img src="/icons/poly.svg" class="icon">
+						Polygon
+					</button>
+				</div>
 
+				<div id="annoInfo">
+					<div id="annoTitle" class="annoInfoBox">
+					</div>
+					<div id="annoInfoText" class="annoInfoBox">
+					</div>
+				</div>
 
-      <div id="annoInfo">
-        <div id="annoTitle" class="annoInfoBox"> </div>
-        <div id="annoInfoText" class="annoInfoBox"> </div>
-      </div>
+				<div id="annoEditNav">
+					<select id="editGroup">
+						<option value="nothing" selected></option>
+						<option value="Allgemeines">Allgemeines</option>
+						<option value="Aufbau und Grundgewebe">Aufbau und Grundgewebe</option>
+						<option value="Leitungsbahnen">Leitungsbahnen</option>
+						<option value="Organspezifische Details">Organspezifische Details</option>
+						<option value="Weitere Details">Weitere Details</option>
+					</select>
 
-      <div id="annoEditNav">
-        <select id="editGroup">
-          <option value="nothing" selected></option>
-          <option value="Allgemeines">Allgemeines</option>
-          <option value="Aufbau und Grundgewebe">Aufbau und Grundgewebe</option>
-          <option value="Leitungsbahnen">Leitungsbahnen</option>
-          <option value="Organspezifische Details">Organspezifische Details</option>
-          <option value="Weitere Details">Weitere Details</option>
-        </select>
+					<div id="annoTitleEdit" class="annoInfoBox">
+						<input type="text" id="editTitle" class="textInput" maxlength=100>
+					</div>
+					<div id="annoInfoTextEdit" class="annoInfoBox">
+						<textarea type="text" id="editInfoBox" class="textInput" maxlength=100000></textarea>
+						<button id="annoDelete">Löschen</button>
+					</div>
+				</div>
 
-        <div id="annoTitleEdit" class="annoInfoBox">
-          <input type="text" id="editTitle" class="textInput" maxlength=100>
-        </div>
-        <div id="annoInfoTextEdit" class="annoInfoBox">
-          <textarea type="text" id="editInfoBox" class="textInput" maxlength=100000></textarea>
-          <button id="annoDelete">Löschen</button>
-        </div>
-      </div>
-
-      <div id="annoManageNav" class="nav">
-        <div id="annoSaveChanged"></div>
-        <button id="annoSave" class="annoManageBut"><i class="at-floppy-disk"></i> Speichern</button>
-      </div>
-    </div>
-  </div>
-</body>
-  <script src="./viewer.js"></script>
+				<div id="annoManageNav" class="nav">
+					<div id="annoSaveChanged"></div>
+					<button id="annoSave" class="annoManageBut"><i class="at-floppy-disk"></i>
+					Speichern</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="./viewer.js"></script>
 </html>

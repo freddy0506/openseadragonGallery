@@ -9,9 +9,9 @@ let web = (function() {
     if (this.edit) {
       window.location.href = "/?edit=true";
     } else if (this.shouldSeeAnno) {
-      window.location.href = "/?anno=true";
+      window.location.href = "./?anno=true";
     } else {
-      window.location.href = "/";
+      window.location.href = "./";
     }
   }
 
@@ -198,6 +198,11 @@ let web = (function() {
     return { butList };
   }
 
+  let setTitle = function(title, subtitle) {
+    document.getElementById("ImgTitle").innerHTML = title;
+    document.getElementById("ImgSubTitle").innerHTML = subtitle;
+   };
+
   return {
     viewerId: "viewer",
     imageId: urlParams.get('image'), // if no image was defined this is undefined
@@ -222,6 +227,7 @@ let web = (function() {
     updateAnnoSelector,
     updateSubAnnoSelector,
     setMode,
+    setTitle,
   }
 })()
 
@@ -770,5 +776,12 @@ let main =
       web.setMode("MOVE");
       viewer.anno.setSelected(curAnnoID);
       web.annoIsSaved(false); 
+    });
+
+    // fetch and set tiltle
+    fetch("./annoList.json").then(async r => {
+      let jsonFile = await r.json();
+      let pic = jsonFile.filter((p) => p.id == web.imageId)[0];
+      web.setTitle(pic.name, pic.keywords.join(", "));
     });
 }));
