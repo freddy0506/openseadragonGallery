@@ -72,6 +72,7 @@
 				</div>
 
 				<div id="annoEditNav">
+					<div class="uiDesc">Untergruppen auswahl:</div>
 					<select id="editGroup">
 						<option value="nothing" selected></option>
 						<option value="Allgemeines">Allgemeines</option>
@@ -81,10 +82,20 @@
 						<option value="Weitere Details">Weitere Details</option>
 					</select>
 
+					<div id="annoOrderNav">
+						<div class="uiDesc">Reihenfolge in der Untergruppe:</div>
+						<table id="orderTable">
+							<tbody id="annoOrder">
+							</tbody>
+						</table>
+					</div>
+
 					<div id="annoTitleEdit" class="annoInfoBox">
+						<div class="uiDesc">Title:</div>
 						<input type="text" id="editTitle" class="textInput" maxlength=100>
 					</div>
 					<div id="annoInfoTextEdit" class="annoInfoBox">
+						<div class="uiDesc">Beschreibung:</div>
 						<textarea type="text" id="editInfoBox" class="textInput" maxlength=100000></textarea>
 						<button id="annoDelete">Löschen</button>
 					</div>

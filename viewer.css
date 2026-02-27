@@ -151,8 +151,14 @@ button:hover {
 .annoInfoBox {
   margin-top: 20px;
   white-space: pre-wrap;
+  display: grid;
 }
-
+#annoDelete {
+  width: 7vw;
+}
+#annoManageNav {
+  padding-top: 3vh;
+}
 #editModeSelector{
   display: none;
 }
@@ -170,4 +176,27 @@ button:hover {
 #ImgSubTitle {
   margin-top: auto;
   margin-left: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 5px
+}
+
+td:first-child {
+  width: auto;
+}
+
+td:nth-child(2), td:nth-child(3) {
+  width: 50px;
+  text-align: center;
+}
+#annoOrderNav {
+  margin-top: 20px
+}
+
+.uiDesc {
+	padding: 3px;
+	font-weight: bold;
 }

@@ -106,6 +106,66 @@ let web = (function() {
     }
   }
 
+  let updateOrderTable = function(curAnno, annoList, switchFunction) {
+    // empty the table
+    let orderTable = document.getElementById("orderTable");
+    orderTable.innerHTML = "";
+
+
+    if(!curAnno) { return; }
+
+    let filteredAnno = annoList.filter((anno) => 
+        ((anno.bodies.find((x) => x.purpose == "tagging") || {value: ""}).value ===
+      (curAnno.bodies.find((x) => x.purpose == "tagging") || {value: ""}).value));
+
+    if (filteredAnno.length < 2) {
+      document.getElementById("annoOrderNav").style.display = "none";
+    } else {
+      document.getElementById("annoOrderNav").style.display = "unset";
+    }
+
+    // add new stuff
+    filteredAnno.forEach((anno, index) => {
+      let row = document.createElement("tr");
+      // Title
+      let title = document.createElement("td")
+      title.innerHTML = (anno.bodies.find((x) => x.purpose == "identifying") || {value: "Unbenannt"}).value;
+      row.appendChild(title)
+
+      // add buttons if it is the current
+      if (anno.id == curAnno.id && filteredAnno.length > 1) {
+        if (index > 0) {
+          // add the up-Button
+          let upCell = document.createElement("td");
+          let upButton = document.createElement("button");
+          upButton.addEventListener("click", () => switchFunction(filteredAnno[index-1], curAnno));
+          upButton.innerHTML = "&#9650";
+          upCell.appendChild(upButton);
+          row.appendChild(upCell);
+        } else {
+          row.appendChild(document.createElement("td"));
+        }
+        
+        if (index < filteredAnno.length-1) {
+          // add the down-Button
+          let downCell = document.createElement("td");
+          let downButton = document.createElement("button");
+          downButton.addEventListener("click", () => switchFunction(filteredAnno[index+1], curAnno));
+          downButton.innerHTML = "&#9660";
+          downCell.appendChild(downButton);
+          row.appendChild(downCell);
+        } else {
+          row.appendChild(document.createElement("td"));
+        }
+      } else {
+        row.appendChild(document.createElement("td"));
+        row.appendChild(document.createElement("td"));
+      }
+
+      orderTable.appendChild(row);
+    });
+  }
+
   // update the info window
   let titleInp = document.getElementById("editTitle");
   let infoInp = document.getElementById("editInfoBox");
@@ -226,6 +286,7 @@ let web = (function() {
     updateInfo,
     updateAnnoSelector,
     updateSubAnnoSelector,
+    updateOrderTable,
     setMode,
     setTitle,
   }
@@ -373,7 +434,7 @@ let viewer = (async function(image) {
         if (!nameA) { return 1; }
         if (!nameB) { return -1; }
 
-        return nameA.value.localeCompare(nameB.value);
+        return 0;
       }
       return groupA.value.localeCompare(groupB.value);
     }
@@ -545,6 +606,31 @@ let viewer = (async function(image) {
       return findMasterAnno(anno.getSelected()[0]);
     }
 
+    function annoSwitch(annoA, annoB) {
+      // use the master as this function is
+      // used to change the order in the dropdown menu
+      let mAnnoA = findMasterAnno(annoA);
+      let mAnnoB = findMasterAnno(annoB);
+
+      // find the indeces in the list
+      let annoList = anno.getAnnotations();
+      let iA = annoList.findIndex((anno) => anno.id == mAnnoA.id);
+      let iB = annoList.findIndex((anno) => anno.id == mAnnoB.id);
+
+      // switch them
+      let tmp = annoList[iA];
+      annoList[iA] = annoList[iB];
+      annoList[iB] = tmp;
+
+      anno.clearAnnotations();
+      anno.loadAnnotations(URL.createObjectURL(
+         new Blob([JSON.stringify(annoList)], { type: "application/json" })
+      )).then(() => {
+        selectAnno(annoB.id);
+      });
+
+    }
+
     return {
       loadAnnos,
       zoom2Selected,
@@ -558,6 +644,7 @@ let viewer = (async function(image) {
       getAnnotations,
       getCurAnno,
       getRelatetAnno,
+      annoSwitch
     };
 
   })(anno);
@@ -666,6 +753,11 @@ let main =
         (web.groupInp.value == "nothing")? undefined : web.groupInp.value
       );
       web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
+      web.updateOrderTable(
+        viewer.annoInt.getCurAnno(),
+        viewer.annoInt.getAnnotations(),
+        viewer.annoInt.annoSwitch
+      );
     }
 
     // update viewer and web on change
@@ -682,11 +774,21 @@ let main =
         web.updateInfo(viewer.annoInt.getCurAnno());
         web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
         updateSubAnnoSelector(viewer.annoInt.getCurAnno());
+        web.updateOrderTable(
+          currentAnno,
+          viewer.annoInt.getAnnotations(),
+          viewer.annoInt.annoSwitch
+        );
       } else {
         viewer.annoInt.zoom2Selected();
         web.updateInfo(viewer.annoInt.getCurAnno());
         web.updateAnnoSelector(viewer.annoInt.getCurAnno(), viewer.annoInt.getAnnotations());
         updateSubAnnoSelector(viewer.annoInt.getCurAnno());
+        web.updateOrderTable(
+          currentAnno,
+          viewer.annoInt.getAnnotations(),
+          viewer.annoInt.annoSwitch
+        )
       }
     });
 
