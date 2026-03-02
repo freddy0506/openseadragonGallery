@@ -184,6 +184,15 @@ table {
   margin-top: 5px
 }
 
+tr {
+  height: 30px;
+}
+
+td {
+	border-bottom: 2px solid #ddd;
+	border-top: 2px solid #ddd;
+}
+
 td:first-child {
   width: auto;
 }
