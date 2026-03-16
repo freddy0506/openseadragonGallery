@@ -5,7 +5,7 @@ const urlParams = new URLSearchParams(window.location.search);
 let web = (function() {
 
   // switch back to homepage while keeping the parameters
-  let goHome = function() {
+  function goHome() {
     if (this.edit) {
       window.location.href = "/?edit=true";
     } else if (this.shouldSeeAnno) {
@@ -40,7 +40,7 @@ let web = (function() {
     return seeAnno
   })(edit);
 
-  let annoIsSaved = function(saved) {
+  function annoIsSaved(saved) {
     if (!edit) { return; }
     let saveDisp = document.getElementById("annoSaveChanged");
     if (saved) {
@@ -54,7 +54,7 @@ let web = (function() {
 
   // create and listen for changes in the Annotationsselector
   let annoSelect = document.getElementById("annoSelector");
-  let updateAnnoSelector = function(curAnno, annotationList) {
+  function updateAnnoSelector(curAnno, annotationList) {
     // fill selector with the ids and identifying names of the annotations
     annoSelect.innerHTML = "";
     
@@ -106,7 +106,7 @@ let web = (function() {
     }
   }
 
-  let updateOrderTable = function(curAnno, annoList, switchFunction) {
+  function updateOrderTable(curAnno, annoList, switchFunction) {
     // empty the table
     let orderTable = document.getElementById("orderTable");
     orderTable.innerHTML = "";
@@ -170,7 +170,7 @@ let web = (function() {
   let titleInp = document.getElementById("editTitle");
   let infoInp = document.getElementById("editInfoBox");
   let groupInp = document.getElementById("editGroup");
-  let updateInfo = function(curAnno) {
+  function updateInfo(curAnno) {
     let titleElem = document.getElementById("annoTitle");
     let infoTextElem= document.getElementById("annoInfoText");
 
@@ -208,7 +208,7 @@ let web = (function() {
   let polyButton = document.getElementById("PolyMode");
   let rectButton = document.getElementById("RectMode");
   let editModeSelector = document.getElementById("editModeSelector");
-  let setMode = function(mode) {
+  function setMode(mode) {
     switch (mode) {
       case "POLY":
         polyButton.className = "curModeButton";
@@ -229,7 +229,7 @@ let web = (function() {
   }
 
   let annoAddSub = document.getElementById("annoAddSub");
-  let updateSubAnnoSelector = function(annoList) {
+  function updateSubAnnoSelector(annoList) {
     let selectorDiv = document.getElementById("buttonGrid");
     let butList = [];
     selectorDiv.innerHTML = "";
@@ -258,7 +258,7 @@ let web = (function() {
     return { butList };
   }
 
-  let setTitle = function(title, subtitle) {
+  function setTitle(title, subtitle) {
     document.getElementById("ImgTitle").innerHTML = title;
     document.getElementById("ImgSubTitle").innerHTML = subtitle;
    };
