@@ -209,3 +209,14 @@ td:nth-child(2), td:nth-child(3) {
 	padding: 3px;
 	font-weight: bold;
 }
+
+footer {
+	text-align: center;
+	padding: 20px;
+	margin-top: 20px;
+	font-size: 0.85em;
+	color: #555;
+}
+footer a {
+	color: rgba(0,75,90,0.9);
+}
